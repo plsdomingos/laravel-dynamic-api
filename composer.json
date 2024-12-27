@@ -1,0 +1,37 @@
+{
+    "name": "plsdomingos/laravel-dynamic-api",
+    "type": "library",
+    "description": "Laravel Dynamic Api",
+    "homepage": "https://github.com/plsdomingos/laravel-dynamic-api",
+    "authors": [
+        {
+            "name": "Pedro Domingos",
+            "email": "pedro@panttera.com",
+            "role": "CTO"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "LaravelDynamicApi\\Shared\\": "src"
+        },
+        "classmap": [
+            "src/"
+        ]
+    },
+    "require": {
+        "php": "^8.2",
+        "astrotomic/laravel-translatable": "^11.15",
+        "cviebrock/eloquent-sluggable": "^11.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/passport": "^12.3",
+        "mtownsend/response-xml": "^2.3",
+        "maatwebsite/excel": "^3.1",
+        "illuminate/contracts": "^11.0",
+        "laravel/framework": "^11.35"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "laravel/sail": "^1.39",
+        "spatie/laravel-ignition": "^2.9"
+    }
+}
