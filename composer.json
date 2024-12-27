@@ -1,13 +1,13 @@
 {
     "name": "plsdomingos/laravel-dynamic-api",
     "type": "library",
+    "license": "MIT",
     "description": "Laravel Dynamic Api",
     "homepage": "https://github.com/plsdomingos/laravel-dynamic-api",
     "authors": [
         {
             "name": "Pedro Domingos",
-            "email": "pedro@panttera.com",
-            "role": "CTO"
+            "email": "pedro@panttera.com"
         }
     ],
     "autoload": {
