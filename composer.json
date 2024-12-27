@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "LaravelDynamicApi\\Shared\\": "src"
+            "Plsdomingos\\LaravelDynamicApi\\": "src/"
         },
         "classmap": [
             "src/"
@@ -33,5 +33,7 @@
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.39",
         "spatie/laravel-ignition": "^2.9"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
