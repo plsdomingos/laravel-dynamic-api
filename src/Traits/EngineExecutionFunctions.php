@@ -2,7 +2,6 @@
 
 namespace LaravelDynamicApi\Traits;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use LaravelDynamicApi\Common\Constants;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,17 +29,29 @@ trait EngineExecutionFunctions
         mixed $filter = null,
         array $ignoreFilters = null,
         array $termFilters = null,
-        array $relationTermFilters = null
+        array $relationTermFilters = null,
+        mixed $sortBy = null,
+        mixed $sortOrder = null,
+        int $page = null,
+        int $perPage = null,
     ): mixed {
         // Set fields
         $ignoreFilters = $ignoreFilters ?? $modelClass::IGNORE_FILTERS;
         $termFilters = $termFilters ?? $modelClass::TERM_FILTERS;
         $relationTermFilters = $relationTermFilters ?? $modelClass::RELATION_TERM_FILTERS;
+        $sortBy = $sortBy ?? $this->sortBy;
+        $sortOrder = $sortOrder ?? $this->sortOrder;
+        $page = $page ?? $this->page;
+        $perPage = $perPage ?? $this->perPage;
 
         $query = $modelClass::requestFilter(
             $modelClass,
             $query,
             $filter,
+            $sortBy,
+            $sortOrder,
+            $page,
+            $perPage,
             $this->authUser,
         );
 

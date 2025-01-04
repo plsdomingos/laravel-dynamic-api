@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use LaravelDynamicApi\Models\UserOnline;
 
 /**
  * Common Trait.
@@ -42,7 +41,7 @@ trait CrudDoFunctionsTrait
      */
     public function doIndex(string $modelClass, GenericIndexRequest $request, array $data): object
     {
-        $query = UserOnline::query();
+        $query = $modelClass::query();
 
         $query = $this->requestSort(
             $modelClass,

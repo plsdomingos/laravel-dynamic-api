@@ -935,6 +935,10 @@ class Model extends BaseModel
         string $modelClass,
         mixed $query,
         mixed $filter,
+        mixed $sortBy,
+        mixed $sortOrder,
+        int $page,
+        int $perPage,
         object | null $authUser,
     ): mixed {
         // To be overwritten in the model.
