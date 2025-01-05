@@ -1072,7 +1072,7 @@ class Model extends BaseModel
 
     private static function getExecutionTypeOnRessources(string $type, array $resources, string $executionTypeKey)
     {
-        if (in_array($type, $resources) || array_key_exists($type, $resources)) {
+        if (array_key_exists($type, $resources)) {
             if (is_array($resources[$type])) {
                 foreach ($resources[$type] as $key => $option) {
                     if ($key === $executionTypeKey) {
