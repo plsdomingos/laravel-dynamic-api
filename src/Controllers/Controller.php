@@ -3,6 +3,7 @@
 namespace LaravelDynamicApi\Controllers;
 
 use LaravelDynamicApi\Common\Constants;
+use LaravelDynamicApi\Traits\EngineModelFunction;
 use LaravelDynamicApi\Traits\EngineRequestFunctions;
 use LaravelDynamicApi\Traits\EngineReturnFunctions;
 use LaravelDynamicApi\Traits\EngineValidationFunctions;
@@ -32,7 +33,8 @@ class Controller extends BaseController
         RouteServiceProviderTrait,
         EngineReturnFunctions,
         EngineValidationFunctions,
-        EngineRequestFunctions;
+        EngineRequestFunctions,
+        EngineModelFunction;
 
     /** @var object $authUser Authenticaded user. */
     protected $authUser;
@@ -187,19 +189,28 @@ class Controller extends BaseController
         $this->relationModelId = $request->relationModelId;
         $this->isFunction = $type === 'modelFunction' || $type === 'function';
         $this->function = $request->function ?? null;
-        $this->requestOutput = $request->request_output ?? [];
+        $this->requestOutput = $request->request_output ?
+            (is_array($request->request_output) ? $request->request_output : [$request->request_output]) : [];
         $this->paginated = $request->paginated ? $this->convertBooleans($request->paginated) : null;
         $this->page = $request->page ?? 1;
         $this->perPage = $request->per_page ?? 10;
-        $this->sortOrder = $request->sort_order ?? ($request->sort && is_array($request->sort) && count($request->sort) == 2 ? $request->sort[1] : 'asc');
-        $this->sortBy = $request->sort_by ?? ($request->sort && is_array($request->sort) && count($request->sort) == 2 ? $request->sort[0] : 'id');
-        $this->showOnly = $request->show_only ?? [];
-        $this->makeVisible = $request->make_visible ?? [];
-        $this->makeHidden = $request->make_hidden ?? [];
-        $this->with = $request->with ?? [];
-        $this->withCount = $request->with_count ?? [];
+        $this->sortOrder = $request->sort_order ??
+            ($request->sort && is_array($request->sort) && count($request->sort) == 2 ? $request->sort[1] : 'asc');
+        $this->sortBy = $request->sort_by ??
+            ($request->sort && is_array($request->sort) && count($request->sort) == 2 ? $request->sort[0] : 'id');
+        $this->showOnly = $request->show_only ?
+            (is_array($request->show_only) ? $request->show_only : [$request->show_only]) : [];
+        $this->makeVisible = $request->make_visible ?
+            (is_array($request->make_visible) ? $request->make_visible : [$request->make_visible]) : [];
+        $this->makeHidden = $request->make_hidden ?
+            (is_array($request->make_hidden) ? $request->make_hidden : [$request->make_hidden]) : [];
+        $this->with = $request->with ?
+            (is_array($request->with) ? $request->with : [$request->with]) : [];
+        $this->withCount = $request->with_count ?
+            (is_array($request->with_count) ? $request->with_count : [$request->with_count]) : [];
         $this->term = $request->term ?? null;
-        $this->withTranslations = $request->withTranslations ? $this->convertBooleans($request->withTranslations) : null;
+        $this->withTranslations = $request->withTranslations ?
+            $this->convertBooleans($request->withTranslations) : null;
         $this->ip = $request->ip();
         $this->headerAccept = $request->header('Accept');
         $this->locale = $request->has('locale') ?
@@ -330,47 +341,6 @@ class Controller extends BaseController
                 }
 
                 return;
-            }
-        } catch (Exception $e) {
-            throw new BadRequestException(
-                __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
-                    'Model class ' . $modelName . ' does not exist. '
-            );
-        }
-    }
-
-    /** Get model class from model name.
-     * 
-     * @param string $modelClass Model class.
-     * 
-     * @return bool If false means the model class doesn't exist.
-     */
-    protected function getModelClass(string $modelName = null): string
-    {
-        $modelName = $modelName ?? $this->modelName;
-        $modelName = Str::plural($modelName);
-
-        try {
-            // Check if the model is configured
-            $routeModels = config('laravel-dynamic-api.dynamic_route_modules', ['*' => '*']);
-            if (array_key_exists($modelName, $routeModels)) {
-                $modelClass = $routeModels[$modelName];
-
-                if (!class_exists($modelClass)) {
-                    throw new Exception;
-                }
-                return $modelClass;
-            }
-            // All classes are available.
-            if (array_key_exists('*', $routeModels)) {
-                $modelClass = config('laravel-dynamic-api.models_namespace', 'App\\Models\\') .
-                    Str::singular(Str::replace(' ', '', Str::title(Str::replace('_', ' ', $modelName))));
-
-                if (!class_exists($modelClass)) {
-                    throw new Exception;
-                }
-
-                return $modelClass;
             }
         } catch (Exception $e) {
             throw new BadRequestException(

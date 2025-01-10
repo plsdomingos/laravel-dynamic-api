@@ -54,6 +54,14 @@ trait EngineRequestFunctions
     {
         if (config('laravel-dynamic-api.track_requests', true)) {
             if ($this->userRequest) {
+                $output = null;
+                try {
+                    $output = collect($returnOutput);
+                } catch (Exception $e) {
+                    $this->saveFaildedRequest();
+                    $status = 500;
+                    $output = $e->getMessage() . ' in file ' . $e->getFile() . ' on line ' . $e->getLine();
+                }
                 $this->userRequest->update([
                     'user_id' => $this->authUser ? $this->authUser->id : null,
                     'type' => $this->type,
@@ -62,7 +70,7 @@ trait EngineRequestFunctions
                     'relation_name' => $this->relationName,
                     'relation_model_id' => $this->relationModelId,
                     'status' => $status,
-                    'return_output' => $returnOutput,
+                    'return_output' => $output,
                 ]);
             }
         }
@@ -91,6 +99,19 @@ trait EngineRequestFunctions
 
             // Open issue in github
             $this->openGithubIssue($userRequest);
+            $model = null;
+            try {
+                $model = collect($this->model);
+            } catch (Exception $e) {
+                // Ignore. The problem it could be getting the model.
+            }
+
+            $returnObject = null;
+            try {
+                $returnObject = collect($this->returnObject);
+            } catch (Exception $e) {
+                // Ignore. The problem it could be getting the returnObject.
+            }
 
             $failedRequestData = [
                 'request_id' => $this->userRequest ?  $this->userRequest->id : null,
@@ -116,7 +137,7 @@ trait EngineRequestFunctions
                 'header_accept' => $this->headerAccept,
                 'locale' => $this->locale,
                 'model_class' => $this->modelClass,
-                'model' => $this->model,
+                'model' => $model,
                 'model_table' => $this->modelTable,
                 'model_translation_table' => $this->modelTranslationTable,
                 'relation_class' => $this->relationClass,
@@ -128,7 +149,7 @@ trait EngineRequestFunctions
                 'total' => $this->total,
                 'output' => $this->output,
                 'data' => $this->data,
-                'return_object' => $this->returnObject,
+                'return_object' => $returnObject,
             ];
             FailedRequest::create($failedRequestData);
         }

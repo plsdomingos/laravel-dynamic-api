@@ -3,6 +3,7 @@
 namespace LaravelDynamicApi\Exceptions;
 
 use LaravelDynamicApi\Traits\EngineRequestFunctions;
+use ErrorException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
@@ -42,6 +43,40 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Report or log an exception.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function report(Throwable $e)
+    {
+        // Kill reporting if this is an "access denied" (code 9) OAuthServerException.
+        if (
+            $e instanceof \League\OAuth2\Server\Exception\OAuthServerException &&
+            $e->getCode() === 9
+        ) {
+            return;
+        }
+        parent::report($e);
+    }
+
+
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof ErrorException) {
+            $requestUser = $this->updateRequestFromHandler(
+                $request,
+                JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage() . ' in file ' . $e->getFile() . ' on line ' . $e->getLine()
+            );
+            $this->saveFailedRequestFromHandler($requestUser, $request);
+        }
+        return parent::render($request, $e);
     }
 
     /**
