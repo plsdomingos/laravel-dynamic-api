@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Request $request)
     {
-        // Cache all reference data in backend-engine -> dynamic_route_modules
+        // Cache all reference data in laravel-dynamic-api.php -> dynamic_route_modules
         $this->cacheAllReferenceData();
     }
 }

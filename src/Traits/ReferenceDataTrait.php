@@ -16,7 +16,7 @@ trait ReferenceDataTrait
     use EngineModelFunction;
 
     /**
-     * Cache forever all reference data that are mention in backend-engine
+     * Cache forever all reference data that are mention in laravel-dynamic-api.php
      */
     protected function cacheAllReferenceData(): void
     {

@@ -23,8 +23,8 @@ class Model extends BaseModel
 
     // Use this constant to hidde the fields by default.
     // The visible fields must be defined inside the const ALWAYS_VISIBLE
-    // This variable can also be overwritten in backend-engine.php on the field hidden_by_default.
-    // If defined in backend-engine.php, this const will be ignored throughout the code.
+    // This variable can also be overwritten in laravel-dynamic-api.php on the field hidden_by_default.
+    // If defined in laravel-dynamic-api.php, this const will be ignored throughout the code.
     const HIDDEN_BY_DEFAULT = true;
 
     /**

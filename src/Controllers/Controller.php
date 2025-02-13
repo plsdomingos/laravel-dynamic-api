@@ -42,7 +42,7 @@ class Controller extends BaseController
     /** @var array $headers Output headers to include in the response. */
     protected $headers = [];
 
-    /** @var boolean $acceptXML If the model accepts XML requests. Can be configured in backend-engine.php or inside the model. */
+    /** @var boolean $acceptXML If the model accepts XML requests. Can be configured in laravel-dynamic-api.php or inside the model. */
     protected $acceptXML = false;
 
     /** @var string $modelClass The class related with the $modelName from the request. */
