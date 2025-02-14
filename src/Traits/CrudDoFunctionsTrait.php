@@ -241,7 +241,9 @@ trait CrudDoFunctionsTrait
                 $withFieldToGet = get_class($response->$withField()->first())::WITH_FIELDS;
             }
 
-            $withFieldUpdated = $response->$withField()->with($withFieldToGet)->get()
+            $withFieldUpdated = $response->$withField()
+                ->with($withFieldToGet)
+                ->withCount($withFieldToGet)->get()
                 ->makeVisible($visibleHidden[$withField]['makeVisible'])
                 ->makeHidden($visibleHidden[$withField]['makeHidden']);
 
