@@ -3,8 +3,8 @@
 namespace LaravelDynamicApi\Traits;
 
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 /**
  * Engine return functions
@@ -48,9 +48,9 @@ trait EngineModelFunction
                 return $modelClass;
             }
         } catch (Exception $e) {
-            throw new BadRequestException(
+            throw new ModelNotFoundException(
                 __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
-                    'Model class ' . $modelName . ' does not exist. '
+                    'Not found model class ' . $modelName . '. '
             );
         }
     }
@@ -78,9 +78,9 @@ trait EngineModelFunction
             }
             return $modelClass;
         } catch (Exception $e) {
-            throw new BadRequestException(
+            throw new ModelNotFoundException(
                 __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
-                    'Model class ' . $modelName . ' does not exist. '
+                    'Not found model class ' . $modelName . '. '
             );
         }
     }

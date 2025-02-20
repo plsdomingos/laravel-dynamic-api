@@ -85,7 +85,7 @@ trait EngineValidationFunctions
             !$modelClass::isResourceAllowed($type)
         ) {
             $message = __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
-                $modelClass . ' model not allowed.';
+                $type . ' method not allowed for model ' . $modelName . '.';
             $this->updateRequest(JsonResponse::HTTP_FORBIDDEN, $message);
             $this->saveFaildedRequest();
             throw new AuthorizationException($message);
