@@ -378,7 +378,7 @@ class ControllerExecution extends Controller
         $modelRulesMandatory = $modelRulesMandatory ?? $this->modelClass::isRulesRequired($type);
 
         $rules = $this->getRules();
-        if ($modelRulesMandatory && $rules === null) {
+        if ($modelRulesMandatory && ($rules === null || empty($rules))) {
             throw new UnauthorizedException(
                 __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
                     'This model does not have rules defined and they are mandatory.'
