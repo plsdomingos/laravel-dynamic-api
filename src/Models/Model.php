@@ -935,6 +935,7 @@ class Model extends BaseModel
         string $modelClass,
         mixed $query,
         mixed $filter,
+        string | null $term,
         mixed $sortBy,
         mixed $sortOrder,
         int $page,

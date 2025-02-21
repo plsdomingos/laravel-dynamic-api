@@ -27,7 +27,6 @@ abstract class AbstractCrudController extends ControllerExecution
      * @since 01.04.2022
      * @author Pedro Domingos <pedro@panttera.com>
      * 
-     * @todo implement term without admin.
      * @todo implement filter in the request and create data.
      */
     public abstract function dynamicIndex(GenericIndexRequest $request, string $modelName);

@@ -27,6 +27,7 @@ trait EngineExecutionFunctions
         string $modelClass,
         mixed $query,
         mixed $filter = null,
+        string $term = null,
         array $ignoreFilters = null,
         array $termFilters = null,
         array $relationTermFilters = null,
@@ -43,11 +44,13 @@ trait EngineExecutionFunctions
         $sortOrder = $sortOrder ?? $this->sortOrder;
         $page = $page ?? $this->page;
         $perPage = $perPage ?? $this->perPage;
+        $term = $term ?? $this->term;
 
         $query = $modelClass::requestFilter(
             $modelClass,
             $query,
             $filter,
+            $term,
             $sortBy,
             $sortOrder,
             $page,
@@ -61,27 +64,7 @@ trait EngineExecutionFunctions
                     continue;
                 }
                 if ($key === 'term') {
-                    $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $val) {
-                        $q->where('id', 'like', '%' . $val . '%');
-                        foreach ($termFilters as $termFilter) {
-                            if (in_array($termFilter, $modelClass::TRANSLATED_FIELDS)) {
-                                $q->orWhereTranslationLike($termFilter, '%' . $val . '%');
-                            } else {
-                                $q->orWhere($termFilter, 'like', '%' . $val . '%');
-                            }
-                        }
-                        foreach ($relationTermFilters as $relation => $relationTermFilter) {
-                            foreach ($relationTermFilter as $termFilter) {
-                                $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $val) {
-                                    if (in_array($termFilter, $this->getModelClass($relation)::TRANSLATED_FIELDS)) {
-                                        $qRelation->whereTranslationLike($termFilter, '%' . $val . '%');
-                                    } else {
-                                        $qRelation->where($termFilter, 'like', '%' . $val . '%');
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    $query = $this->requestFilterByTerm($modelClass, $query, $val, $termFilters, $relationTermFilters);
                     continue;
                 }
                 if (is_array($val)) {
@@ -91,7 +74,42 @@ trait EngineExecutionFunctions
                 }
             }
         }
+
+        if ($term) {
+            $query = $this->requestFilterByTerm($modelClass, $query, $term, $termFilters, $relationTermFilters);
+        }
+
         return $query;
+    }
+
+    private function requestFilterByTerm(
+        string $modelClass,
+        mixed $query,
+        string $term,
+        array $termFilters,
+        array $relationTermFilters,
+    ) {
+        return $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $term) {
+            $q->where('id', 'like', '%' . $term . '%');
+            foreach ($termFilters as $termFilter) {
+                if (in_array($termFilter, $modelClass::TRANSLATED_FIELDS)) {
+                    $q->orWhereTranslationLike($termFilter, '%' . $term . '%');
+                } else {
+                    $q->orWhere($termFilter, 'like', '%' . $term . '%');
+                }
+            }
+            foreach ($relationTermFilters as $relation => $relationTermFilter) {
+                foreach ($relationTermFilter as $termFilter) {
+                    $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $term) {
+                        if (in_array($termFilter, $this->getModelClass($relation)::TRANSLATED_FIELDS)) {
+                            $qRelation->whereTranslationLike($termFilter, '%' . $term . '%');
+                        } else {
+                            $qRelation->where($termFilter, 'like', '%' . $term . '%');
+                        }
+                    });
+                }
+            }
+        });
     }
 
     /**
