@@ -447,7 +447,7 @@ class Controller extends BaseController
         if ($this->relationSpecificModel) {
             $this->relationModel = $this->resolveRelationModelTrait(
                 $this->userRequest,
-                $this->relationOutput,
+                $this->relationClass,
                 $relationModelId,
                 $locale,
                 in_array('slug', $this->modelClass::TRANSLATED_FIELDS)

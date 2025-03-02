@@ -68,7 +68,7 @@ trait RouteServiceProviderTrait
      */
     public function resolveRelationModelTrait(
         $requestUser,
-        object $relation,
+        string $relationClass,
         $routeKey,
         string $locale,
         bool $translation = true,
@@ -78,7 +78,7 @@ trait RouteServiceProviderTrait
         if (is_numeric($routeKey)) {
             return $this->getRelationModelById(
                 $requestUser,
-                $relation,
+                $relationClass,
                 $routeKey,
                 $abort
             );
@@ -86,7 +86,7 @@ trait RouteServiceProviderTrait
 
         return $this->getRelationModelBySlug(
             $requestUser,
-            $relation,
+            $relationClass,
             $routeKey,
             $locale,
             $translation,
@@ -138,11 +138,11 @@ trait RouteServiceProviderTrait
      */
     private function getRelationModelById(
         $userRequest,
-        object $relation,
+        string $relationClass,
         string $routeKey,
         bool $abort
     ) {
-        $relationModel = $relation->where('id', $routeKey)->first();
+        $relationModel = $relationClass::where('id', $routeKey)->first();
 
         if (!$relationModel && !$abort) {
             return null;
@@ -237,7 +237,7 @@ trait RouteServiceProviderTrait
      */
     private function getRelationModelBySlug(
         $userRequest,
-        object $relation,
+        string $relationClass,
         string $routeKey,
         string $locale,
         bool $translation,
@@ -245,9 +245,9 @@ trait RouteServiceProviderTrait
     ) {
         try {
             if ($translation) {
-                $relationModel = $relation->whereTranslation('slug', $routeKey, $locale)->first();
+                $relationModel = $relationClass::whereTranslation('slug', $routeKey, $locale)->first();
             } else {
-                $relationModel = $relation->where('slug', $routeKey, $locale)->first();
+                $relationModel = $relationClass::where('slug', $routeKey, $locale)->first();
                 if (is_null($relationModel)) {
                     if (!$abort) {
                         return null;
@@ -262,7 +262,7 @@ trait RouteServiceProviderTrait
             if (is_null($relationModel) && $translation) {
                 foreach (config('translatable.locales') as $localeKey => $label) {
 
-                    $relationModelInLocale = $relation->whereTranslation('slug', $routeKey, $localeKey)->first();
+                    $relationModelInLocale = $relationClass::whereTranslation('slug', $routeKey, $localeKey)->first();
 
                     if ($relationModelInLocale) {
                         return $relationModelInLocale;
