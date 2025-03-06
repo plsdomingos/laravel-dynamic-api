@@ -33,6 +33,8 @@ trait EngineExecutionFunctions
         array $relationTermFilters = null,
         mixed $sortBy = null,
         mixed $sortOrder = null,
+        mixed $sortByRaw = null,
+        array $ignoreSort = null,
         int $page = null,
         int $perPage = null,
     ): mixed {
@@ -42,21 +44,11 @@ trait EngineExecutionFunctions
         $relationTermFilters = $relationTermFilters ?? $modelClass::RELATION_TERM_FILTERS;
         $sortBy = $sortBy ?? $this->sortBy;
         $sortOrder = $sortOrder ?? $this->sortOrder;
+        $sortByRaw = $sortByRaw ?? $this->sortByRaw;
+        $ignoreSort = $ignoreSort ?? $modelClass::IGNORE_SORT;
         $page = $page ?? $this->page;
         $perPage = $perPage ?? $this->perPage;
         $term = $term ?? $this->term;
-
-        $query = $modelClass::requestFilter(
-            $modelClass,
-            $query,
-            $filter,
-            $term,
-            $sortBy,
-            $sortOrder,
-            $page,
-            $perPage,
-            $this->authUser,
-        );
 
         if ($filter) {
             foreach ($filter as $key => $val) {
@@ -64,7 +56,7 @@ trait EngineExecutionFunctions
                     continue;
                 }
                 if ($key === 'term') {
-                    $query = $this->requestFilterByTerm($modelClass, $query, $val, $termFilters, $relationTermFilters);
+                    $query = $modelClass::requestFilterByTerm($modelClass, $query, $val, $termFilters, $relationTermFilters);
                     continue;
                 }
                 if (is_array($val)) {
@@ -76,40 +68,27 @@ trait EngineExecutionFunctions
         }
 
         if ($term) {
-            $query = $this->requestFilterByTerm($modelClass, $query, $term, $termFilters, $relationTermFilters);
+            $query = $modelClass::requestFilterByTerm($modelClass, $query, $term, $termFilters, $relationTermFilters);
         }
 
-        return $query;
-    }
+        $query = $modelClass::requestFilter(
+            $modelClass,
+            $query,
+            $filter,
+            $term,
+            $ignoreFilters,
+            $termFilters,
+            $relationTermFilters,
+            $sortBy,
+            $sortOrder,
+            $sortByRaw,
+            $ignoreSort,
+            $page,
+            $perPage,
+            $this->authUser,
+        );
 
-    private function requestFilterByTerm(
-        string $modelClass,
-        mixed $query,
-        string $term,
-        array $termFilters,
-        array $relationTermFilters,
-    ) {
-        return $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $term) {
-            $q->where('id', 'like', '%' . $term . '%');
-            foreach ($termFilters as $termFilter) {
-                if (in_array($termFilter, $modelClass::TRANSLATED_FIELDS)) {
-                    $q->orWhereTranslationLike($termFilter, '%' . $term . '%');
-                } else {
-                    $q->orWhere($termFilter, 'like', '%' . $term . '%');
-                }
-            }
-            foreach ($relationTermFilters as $relation => $relationTermFilter) {
-                foreach ($relationTermFilter as $termFilter) {
-                    $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $term) {
-                        if (in_array($termFilter, $this->getModelClass($relation)::TRANSLATED_FIELDS)) {
-                            $qRelation->whereTranslationLike($termFilter, '%' . $term . '%');
-                        } else {
-                            $qRelation->where($termFilter, 'like', '%' . $term . '%');
-                        }
-                    });
-                }
-            }
-        });
+        return $query;
     }
 
     /**
@@ -121,15 +100,30 @@ trait EngineExecutionFunctions
     protected function requestSort(
         string $modelClass,
         mixed $query,
+        mixed $filter = null,
+        string $term = null,
+        array $ignoreFilters = null,
+        array $termFilters = null,
+        array $relationTermFilters = null,
         mixed $sortBy = null,
         mixed $sortOrder = null,
+        mixed $sortByRaw = null,
         array $ignoreSort = null,
-        string $sortByRaw = null
+        int $page = null,
+        int $perPage = null,
+
     ): mixed {
         // Set fields
-        $ignoreSort = $ignoreSort ?? $modelClass::IGNORE_SORT;
+        $ignoreFilters = $ignoreFilters ?? $modelClass::IGNORE_FILTERS;
+        $termFilters = $termFilters ?? $modelClass::TERM_FILTERS;
+        $relationTermFilters = $relationTermFilters ?? $modelClass::RELATION_TERM_FILTERS;
         $sortBy = $sortBy ?? $this->sortBy;
         $sortOrder = $sortOrder ?? $this->sortOrder;
+        $sortByRaw = $sortByRaw ?? $this->sortByRaw;
+        $ignoreSort = $ignoreSort ?? $modelClass::IGNORE_SORT;
+        $page = $page ?? $this->page;
+        $perPage = $perPage ?? $this->perPage;
+        $term = $term ?? $this->term;
 
         // TODO: Sort by appends
         if (
@@ -148,8 +142,17 @@ trait EngineExecutionFunctions
         $query = $modelClass::requestSort(
             $modelClass,
             $query,
+            $filter,
+            $term,
+            $ignoreFilters,
+            $termFilters,
+            $relationTermFilters,
             $sortBy,
             $sortOrder,
+            $sortByRaw,
+            $ignoreSort,
+            $page,
+            $perPage,
             $this->authUser,
         );
 

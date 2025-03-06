@@ -936,8 +936,13 @@ class Model extends BaseModel
         mixed $query,
         mixed $filter,
         string | null $term,
+        array $ignoreFilters,
+        array $termFilters,
+        array $relationTermFilters,
         mixed $sortBy,
         mixed $sortOrder,
+        mixed $sortByRaw,
+        array $ignoreSort,
         int $page,
         int $perPage,
         object | null $authUser,
@@ -949,8 +954,17 @@ class Model extends BaseModel
     public static function requestSort(
         string $modelClass,
         mixed $query,
+        mixed $filter,
+        string | null $term,
+        array $ignoreFilters,
+        array $termFilters,
+        array $relationTermFilters,
         mixed $sortBy,
         mixed $sortOrder,
+        mixed $sortByRaw,
+        array $ignoreSort,
+        int $page,
+        int $perPage,
         object | null $authUser,
     ): mixed {
         // To be overwritten in the model.
@@ -958,7 +972,7 @@ class Model extends BaseModel
     }
 
     /**
-     * Filter the results after get. Usered on get relation index.
+     * Filter the results after get. Used on get relation index.
      * 
      * @since 27.03.2024
      * @author Pedro Domingos <pedro@panttera.com>
@@ -1083,5 +1097,38 @@ class Model extends BaseModel
             }
         }
         return null;
+    }
+
+    /**
+     * Static function to filter request by term.
+     */
+    protected static function requestFilterByTerm(
+        string $modelClass,
+        mixed $query,
+        string $term,
+        array $termFilters,
+        array $relationTermFilters,
+    ) {
+        return $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $term) {
+            $q->where('id', 'like', '%' . $term . '%');
+            foreach ($termFilters as $termFilter) {
+                if (in_array($termFilter, $modelClass::TRANSLATED_FIELDS)) {
+                    $q->orWhereTranslationLike($termFilter, '%' . $term . '%');
+                } else {
+                    $q->orWhere($termFilter, 'like', '%' . $term . '%');
+                }
+            }
+            foreach ($relationTermFilters as $relation => $relationTermFilter) {
+                foreach ($relationTermFilter as $termFilter) {
+                    $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $term) {
+                        if (in_array($termFilter, $this->getModelClass($relation)::TRANSLATED_FIELDS)) {
+                            $qRelation->whereTranslationLike($termFilter, '%' . $term . '%');
+                        } else {
+                            $qRelation->where($termFilter, 'like', '%' . $term . '%');
+                        }
+                    });
+                }
+            }
+        });
     }
 }

@@ -43,19 +43,15 @@ trait CrudDoFunctionsTrait
     {
         $query = $modelClass::query();
 
-        $query = $this->requestSort(
-            $modelClass,
-            $query,
-            null,
-            null,
-            null,
-            $this->sortByRaw,
-        );
-
         $query = $this->requestFilter(
             $modelClass,
             $query,
             json_decode($request->filter, true)
+        );
+
+        $query = $this->requestSort(
+            $modelClass,
+            $query,
         );
 
         $visibleHidden = $this->getVisibleAndHidden(
