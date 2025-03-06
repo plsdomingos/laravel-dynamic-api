@@ -110,7 +110,10 @@ trait RouteServiceProviderTrait
         bool $abort
     ) {
         $model = $modelClass::select($modelClass::getFields($output))
-            ->withCount(array_merge($modelClass::getWithCountFields($output), $withCount))
+            ->withCount(array_diff(
+                array_merge($modelClass::getWithCountFields($output), $withCount),
+                [$modelClass::MORPH_RELATION_NAME]
+            ))
             ->with(array_merge($modelClass::getWithFields($output), $with))
             ->find($routeKey);
 

@@ -117,6 +117,15 @@ class Model extends BaseModel
      */
     const EXCEL_EXPORT_HEADER = [];
 
+    /**
+     * Morph relation name.
+     * The morph relation name is necessary to remove from the withCount.
+     * To avioid the error laravel_reserved_0.
+     * 
+     * @var string
+     */
+    const MORPH_RELATION_NAME = '';
+
     /********************** SIMPLIFIED **********************/
     /**
      * Fields to return.
