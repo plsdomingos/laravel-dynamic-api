@@ -48,7 +48,7 @@ class Controller extends BaseController
     /** @var string $modelClass The class related with the $modelName from the request. */
     protected $modelClass;
 
-    /** @var object $model The object getted from the $modelName and the $modelId from the request.  */
+    /** @var object $model The object getted from the $modelName and the $modelId from the request. */
     protected $model;
 
     /** @var string $modelTable The table associated to the $modelName and the $modelId from the request.  */
@@ -60,17 +60,29 @@ class Controller extends BaseController
     /** @var string $relationClass The class related with the $relationName from the request. */
     protected $relationClass;
 
+    /** @var string $relationOfRelationClass The class related with the $relationOfRelationName from the request. */
+    protected $relationOfRelationClass;
+
     /** @var object $relationOutput All elements of a relation. */
     protected $relationOutput;
 
-    /** @var object $relationModel The relation model. */
+    /** @var object $relationOfRelationOutput All elements of a relation of rellation. */
+    protected $relationOfRelationOutput;
+
+    /** @var object $relationModel The object getted from the $relationName and the $relationModelId from the request. */
     protected $relationModel;
+
+    /** @var object $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request. */
+    protected $relationOfRelationModel;
 
     /** @var bool $specificModel True if the execution runs to a specific model, for example show, false if not. */
     protected bool $specificModel = false;
 
     /** @var bool $relationSpecificModel True if the execution runs to a relation specific model, for example relationUpdate, false if not */
     protected bool $relationSpecificModel = false;
+
+    /** @var bool $relationOfRelationSpecificModel True if the execution runs to a relation of relation specific model, for example relationOfRelationUpdate, false if not */
+    protected bool $relationOfRelationSpecificModel = false;
 
     /** @var bool $relationBulk True if the execution runs to a relation for multiple models, for example relationBulkUpdate, false if not */
     protected bool $relationBulk = false;
@@ -98,13 +110,19 @@ class Controller extends BaseController
     /** @var string $relationModelId The relation model identifier. The fourth element of the route. */
     protected $relationModelId;
 
+    /** @var string $relationOfRelationName The relation of relation name. The fith element of the route. */
+    protected $relationOfRelationName;
+
+    /** @var string $relationOfRelationModelId The relation of relation model identifier. The sixth element of the route. */
+    protected $relationOfRelationModelId;
+
     /** @var boolean $isFunction If the call is a fnction. */
     protected $isFunction;
 
     /** @var string $function API function. */
     protected $function;
 
-    /** @var string $locale Request locale. German by default. */
+    /** @var string $locale Request locale. */
     protected $locale;
 
     /** @var string $output The output type. */
@@ -165,10 +183,10 @@ class Controller extends BaseController
     /** @var string $ip Request IP. */
     protected $ip;
 
-    /** @var array $data API data. */
+    /** @var array $data API data after validation. */
     protected $data;
 
-    /** @var mixed $returnObject Return object. */
+    /** @var mixed $returnObject The return object. */
     protected $returnObject;
 
     /**
@@ -187,6 +205,8 @@ class Controller extends BaseController
         $this->modelId = $request->modelId;
         $this->relationName = $request->relationName;
         $this->relationModelId = $request->relationModelId;
+        $this->relationOfRelationName = $request->relationOfRelationName;
+        $this->relationOfRelationModelId = $request->relationOfRelationModelId;
         $this->isFunction = $type === 'modelFunction' || $type === 'function';
         $this->function = $request->function ?? null;
         $this->requestOutput = $request->request_output ?
@@ -238,6 +258,9 @@ class Controller extends BaseController
         $this->output = $request->output ?? Constants::OUTPUT_SIMPLIFIED;
 
         switch ($type) {
+            case 'relationOfRelationShow':
+                $this->relationOfRelationSpecificModel = true;
+            case 'relationOfRelationIndex':
             case 'relationShow':
             case 'relationFunction':
             case 'relationUpdate':
@@ -350,16 +373,24 @@ class Controller extends BaseController
         }
     }
 
-    /** Set rlatione class into the global variables.
+    /** Set relation class into the global variable $relationClass.
      * 
      * @param string $relationClass Model class.
-     * 
-     * @return bool If false means the model class doesn't exist.
      */
     protected function setRelationClass(string $relationName = null): void
     {
         $relationName = $relationName ?? $this->relationName;
         $this->relationClass = $this->getModelClass($relationName);
+    }
+
+    /** Set relation of relation class into the global variable $relationOfRelationClass.
+     * 
+     * @param string $relationOfRelationName Model class.
+     */
+    protected function setRelationOfRelationClass(string $relationOfRelationName = null): void
+    {
+        $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
+        $this->relationOfRelationClass = $this->getModelClass($relationOfRelationName);
     }
 
     /** Set model class into the global variables.
@@ -384,6 +415,9 @@ class Controller extends BaseController
         $with = $with ?? $this->with;
 
         switch ($this->type) {
+            case 'relationOfRelationShow':
+                $this->relationOfRelationSpecificModel = true;
+            case 'relationOfRelationIndex':
             case 'relationShow':
             case 'relationFunction':
             case 'relationUpdate':
@@ -428,7 +462,6 @@ class Controller extends BaseController
         $relationName = $relationName ?? $this->relationName;
         $relationModelId = $relationModelId ?? $this->relationModelId;
         $locale = $locale ?? $this->locale;
-
         try {
             $this->relationOutput = $this->model->$relationName()
                 ->with($this->relationClass::WITH_FIELDS)
@@ -443,7 +476,6 @@ class Controller extends BaseController
                 );
             }
         }
-
         if ($this->relationSpecificModel) {
             $this->relationModel = $this->resolveRelationModelTrait(
                 $this->userRequest,
@@ -455,17 +487,44 @@ class Controller extends BaseController
         }
     }
 
+    protected function  setRelationOfRelationModel(
+        string $relationOfRelationName = null,
+        string $relationOfRelationModelId = null,
+        string $locale = null,
+    ): void {
+        $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
+        $relationOfRelationModelId = $relationOfRelationModelId ?? $this->relationOfRelationModelId;
+        $locale = $locale ?? $this->locale;
+        try {
+            $this->relationOfRelationOutput = $this->relationModel->$relationOfRelationName()
+                ->with($this->relationOfRelationClass::WITH_FIELDS)
+                ->withTrashed()->get();
+        } catch (Exception $e) {
+            $this->relationOfRelationOutput = $this->relationModel->$relationOfRelationName;
+        } finally {
+            if ($this->relationOfRelationOutput === null) {
+                throw new BadRequestException(
+                    __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
+                        "The model " . $this->relationModel::class . " does not contains the relation $relationOfRelationName."
+                );
+            }
+        }
+        if ($this->relationOfRelationSpecificModel) {
+            $this->relationModel = $this->resolveRelationModelTrait(
+                $this->userRequest,
+                $this->relationOfRelationClass,
+                $relationOfRelationModelId,
+                $locale,
+                in_array('slug', $this->relationModel::TRANSLATED_FIELDS)
+            );
+        }
+    }
+
     /** Function to run before the execution.
      * 
      * By default this function doesn't have any logic inside.
      * 
      * Overwride this funtion inside the controller, if neessary.
-     * 
-     * @param Request $request The request object.
-     * @param array $data The request data array.
-     * @param string|object $model Model or model class.
-     * @param string $type The request type.
-     * 
      * 
      * @since 10.06.2022
      * @author Pedro Domingos <pedro@panttera.com>
@@ -477,12 +536,6 @@ class Controller extends BaseController
      * By default this function doesn't have any logic inside.
      * 
      * Overwride this funtion inside the controller, if neessary.
-     * 
-     * @param Request $request The request object.
-     * @param array $data The request data array.
-     * @param string|object $model Model or model class.
-     * @param string $type The request type.
-     * 
      * 
      * @since 10.06.2022
      * @author Pedro Domingos <pedro@panttera.com>

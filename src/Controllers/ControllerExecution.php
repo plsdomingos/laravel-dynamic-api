@@ -36,9 +36,15 @@ class ControllerExecution extends Controller
         if (Str::contains($this->type, "relation", true)) {
             $this->setRelationClass($this->relationName);
         }
+        if (Str::contains($this->type, "relationOfRelation", true)) {
+            $this->setRelationOfRelationClass($this->relationOfRelationName);
+        }
         $this->setSpecificModel();
         if (Str::contains($this->type, "relation", true)) {
             $this->setRelationModel($this->relationName, $this->relationModelId);
+        }
+        if (Str::contains($this->type, "relationOfRelation", true)) {
+            $this->setRelationOfRelationModel($this->relationOfRelationName, $this->relationOfRelationModelId);
         }
         $this->validateExecution();
     }
@@ -71,8 +77,11 @@ class ControllerExecution extends Controller
         //     'relationClass' => $this->relationClass,
         //     'relationOutput' => $this->relationOutput,
         //     'relationModel' => $this->relationModel,
+        //     'relationOfRelationName' => $this->relationOfRelationName,
+        //     'relationOfRelationClass' => $this->relationOfRelationClass,
         //     'specificModel' => $this->specificModel,
         //     'relationSpecificModel' => $this->relationSpecificModel,
+        //     'relationOfRelationSpecificModel' => $this->relationOfRelationSpecificModel,
         //     'relationBulk' => $this->relationBulk,
         //     'total' => $this->total,
         //     'request' => $this->request->all(),
@@ -142,31 +151,50 @@ class ControllerExecution extends Controller
         }
     }
 
-    /** Execute before functions.
+    /** 
+     * Execute before functions.
      * 
-     * @param string $type The request type.
-     * @param Request $request Request object.
-     * @param string|object $model Model or model class. Model class is sent in store function.
-     * @param array $data Data to be sent to the function.
-     * @param string $relationModel The relation model name.
+     * The model function returns the respective model. The class function returns the data.
      * 
-     * @return Object The model to be used in the function. Index
+     * The execution order: 
+     * 
+     * 1. relation of relation model
+     * 2. relation of relation class
+     * 3. relation model
+     * 4. relation class
+     * 5. model
+     * 6, model class
+     * 7. controller
+     * 
+     * @param string|null $type API request type. 
+     * @param Request|null $request API request.
+     * @param array|null $data API data after validation.
+     * @param string|null $modelClass The class related with the $modelName from the request.
+     * @param string|null $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
      * 
      */
     protected function executeBeforeFunctions(
-        string $type = null,
-        Request $request = null,
-        array $data = null,
-        string $modelClass = null,
-        string $modelName = null,
-        object $model = null,
+        string | null $type = null,
+        Request | null $request = null,
+        array | null $data = null,
+        string | null $modelClass = null,
+        string | null $modelName = null,
+        object | null $model = null,
         string | null $relationClass = null,
         string | null $relationName = null,
         object | null $relationModel = null,
+        string | null $relationOfRelationClass = null,
+        string | null $relationOfRelationName = null,
+        object | null $relationOfRelationModel = null,
         string $locale = null,
     ): void {
-        $this->beforeFunction();
-
         // set values
         $type = $type ?? $this->type;
         $request = $request ?? $this->request;
@@ -177,53 +205,14 @@ class ControllerExecution extends Controller
         $relationClass = $relationClass ?? $this->relationClass;
         $relationName = $relationName ?? $this->relationName;
         $relationModel = $relationModel ?? $this->relationModel;
+        $relationOfRelationClass = $relationOfRelationClass ?? $this->relationOfRelationClass;
+        $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
+        $relationOfRelationModel = $relationOfRelationModel ?? $this->relationOfRelationModel;
         $locale = $locale ?? $this->locale;
 
-        $modelClass::beforeFunction(
-            $type,
-            $request,
-            $data,
-            $modelClass,
-            $modelName,
-            $model,
-            $relationClass,
-            $relationName,
-            $relationModel,
-            $locale,
-            $this->authUser
-        );
-        if ($relationName !== null && $relationClass !== null) {
-            $relationClass::beforeFunction(
-                $type,
-                $request,
-                $data,
-                $modelClass,
-                $modelName,
-                $model,
-                $relationClass,
-                $relationName,
-                $relationModel,
-                $locale,
-                $this->authUser
-            );
-        }
-
-        if ($this->specificModel) {
-            $this->model = $model->beforeModelFunction(
-                $type,
-                $request,
-                $data,
-                $modelClass,
-                $modelName,
-                $model,
-                $relationClass,
-                $relationName,
-                $relationModel,
-                $locale,
-                $this->authUser
-            );
-            if ($this->relationSpecificModel) {
-                $this->relationModel = $relationModel->beforeModelFunction(
+        if ($relationOfRelationClass) {
+            if ($relationOfRelationModel) {
+                $relationOfRelationModel = $relationOfRelationModel->beforeModelFunction(
                     $type,
                     $request,
                     $data,
@@ -233,102 +222,172 @@ class ControllerExecution extends Controller
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
                     $locale,
-                    $this->authUser
+                    $this->authUser,
                 );
             }
+            $data = $relationOfRelationClass::beforeFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
         }
+
+        if ($relationClass) {
+            if ($relationModel) {
+                $relationModel = $relationModel->beforeModelFunction(
+                    $type,
+                    $request,
+                    $data,
+                    $modelClass,
+                    $modelName,
+                    $model,
+                    $relationClass,
+                    $relationName,
+                    $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
+                    $locale,
+                    $this->authUser,
+                );
+            }
+            $data = $relationClass::beforeFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
+        }
+
+        if ($modelClass) {
+            if ($model) {
+                $model = $model->beforeModelFunction(
+                    $type,
+                    $request,
+                    $data,
+                    $modelClass,
+                    $modelName,
+                    $model,
+                    $relationClass,
+                    $relationName,
+                    $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
+                    $locale,
+                    $this->authUser,
+                );
+            }
+            $data = $modelClass::beforeFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
+        }
+
+        // Set Global Variables
+        $this->data = $data;
+        $this->relationModel = $relationModel;
+        $this->model = $model;
+        $this->relationOfRelationModel = $relationOfRelationModel;
+
+        $this->beforeFunction();
     }
 
-    // TODO: This is a void?
-    /** Execute after functions.
+    /** 
+     * Execute after functions.
      * 
-     * @param string $type The request type.
-     * @param Request $request Request object.
-     * @param string|object $model Model or model class. Model class is sent in store function.
-     * @param array $data Data to be sent to the function.
-     * @param string $relationModel The relation model name.
+     * The model function returns the respective model. The class function returns the data.
+     * 
+     * The execution order: 
+     * 
+     * 1. relation of relation model
+     * 2. relation of relation class
+     * 3. relation model
+     * 4. relation class
+     * 5. model
+     * 6, model class
+     * 7. controller
+     * 
+     * @param string|null $type API request type. 
+     * @param Request|null $request API request.
+     * @param array|null $data API data after validation.
+     * @param string|null $modelClass The class related with the $modelName from the request.
+     * @param string|null $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
      * 
      * @return mixed The output to return.
      */
     protected function executeAfterFunctions(
-        string $type = null,
-        Request $request = null,
-        array $data = null,
-        string $modelClass = null,
-        string $modelName = null,
-        object $model = null,
+        string | null $type = null,
+        Request | null $request = null,
+        array | null $data = null,
+        string | null $modelClass = null,
+        string | null $modelName = null,
+        object | null $model = null,
         string | null $relationClass = null,
         string | null $relationName = null,
         object | null $relationModel = null,
+        string | null $relationOfRelationClass = null,
+        string | null $relationOfRelationName = null,
+        object | null $relationOfRelationModel = null,
         string $locale = null,
     ): void {
         // set values
         $type = $type ?? $this->type;
         $request = $request ?? $this->request;
-        $data = $data ?? $this->data;
+        $data = empty($data) ? $this->data : $data;
         $modelClass = $modelClass ?? $this->modelClass;
         $modelName = $modelName ?? $this->modelName;
-        $model = $this->model ??
-            $type === 'modelFunction' ? $this->model : $this->returnObject; // The model must the return object.
-        $cloneReturnObject = $this->returnObject;
+        // TODO: Check when it's a function if we have a problem here.
+        $model = $model ?? $this->model;
         $relationClass = $relationClass ?? $this->relationClass;
         $relationName = $relationName ?? $this->relationName;
         $relationModel = $relationModel ?? $this->relationModel;
+        $relationOfRelationClass = $relationOfRelationClass ?? $this->relationOfRelationClass;
+        $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
+        $relationOfRelationModel = $relationOfRelationModel ?? $this->relationOfRelationModel;
         $locale = $locale ?? $this->locale;
 
-        $this->returnObject = $modelClass::afterFunction(
-            $type,
-            $request,
-            $data,
-            $this->returnObject,
-            $modelClass,
-            $modelName,
-            $model,
-            $relationClass,
-            $relationName,
-            $relationModel,
-            $locale,
-            $this->authUser
-        );
-        if ($relationName !== null && $relationClass !== null) {
-            $this->returnObject = $relationClass::afterFunction(
-                $type,
-                $request,
-                $data,
-                $this->returnObject,
-                $modelClass,
-                $modelName,
-                $model,
-                $relationClass,
-                $relationName,
-                $relationModel,
-                $locale,
-                $this->authUser
-            );
-        }
-
-        if (!$this->relationBulk) {
-            if ($this->specificModel) {
-                if ($this->relationSpecificModel) {
-                    $this->returnObject = $relationModel->afterModelFunction(
-                        $type,
-                        $request,
-                        $data,
-                        $modelClass,
-                        $modelName,
-                        $model,
-                        $relationClass,
-                        $relationName,
-                        $relationModel,
-                        $locale,
-                        $this->authUser
-                    );
-                    // Model Function must return the function result and not the after function.
-                    $this->returnObject = $type !== 'modelFunction' ? $this->returnObject : $cloneReturnObject; // The model must the return object.
-                    return;
-                }
-                $this->returnObject = $model->afterModelFunction(
+        if ($relationOfRelationClass) {
+            if ($relationOfRelationModel) {
+                $relationOfRelationModel = $relationOfRelationModel->afterModelFunction(
                     $type,
                     $request,
                     $data,
@@ -338,18 +397,106 @@ class ControllerExecution extends Controller
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
                     $locale,
-                    $this->authUser
+                    $this->authUser,
                 );
-                // Model Function must return the function result and not the after function.
-                $this->returnObject = $type !== 'modelFunction' ? $this->returnObject : $cloneReturnObject; // The model must the return object.
-                return;
             }
+            $data = $relationOfRelationClass::afterFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
         }
-        $this->afterFunction();
 
-        // Model Function must return the function result and not the after function.
-        $this->returnObject = $type !== 'modelFunction' ? $this->returnObject : $cloneReturnObject; // The model must the return object.
+        if ($relationClass) {
+            if ($relationModel) {
+                $relationModel = $relationModel->afterModelFunction(
+                    $type,
+                    $request,
+                    $data,
+                    $modelClass,
+                    $modelName,
+                    $model,
+                    $relationClass,
+                    $relationName,
+                    $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
+                    $locale,
+                    $this->authUser,
+                );
+            }
+            $data = $relationClass::afterFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
+        }
+
+        if ($modelClass) {
+            if ($model) {
+                $model = $model->afterModelFunction(
+                    $type,
+                    $request,
+                    $data,
+                    $modelClass,
+                    $modelName,
+                    $model,
+                    $relationClass,
+                    $relationName,
+                    $relationModel,
+                    $relationOfRelationName,
+                    $relationOfRelationModel,
+                    $locale,
+                    $this->authUser,
+                );
+            }
+            $data = $modelClass::afterFunction(
+                $type,
+                $request,
+                $data,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationName,
+                $relationOfRelationModel,
+                $locale,
+                $this->authUser,
+            );
+        }
+
+        // Set Global Variables
+        $this->data = $data;
+        $this->relationModel = $relationModel;
+        $this->model = $model;
+        $this->relationOfRelationModel = $relationOfRelationModel;
+
+        $this->afterFunction();
     }
 
 
@@ -654,7 +801,8 @@ class ControllerExecution extends Controller
         string $relationName = null,
         string $relationClass = null,
         string $function = null,
-        string $relationModel = null
+        string $relationModel = null,
+        string $relationOfRelationClass = null
     ): object {
         // Set fields
         $type = $type ?? $this->type;
@@ -667,6 +815,7 @@ class ControllerExecution extends Controller
         $relationClass = $relationClass ?? $this->relationClass;
         $function = $function ?? $this->function;
         $relationModel = $relationModel ?? $this->relationModel;
+        $relationOfRelationClass = $relationOfRelationClass ?? $this->relationOfRelationClass;
 
         // Execute the function per type.
         switch ($this->type) {
@@ -716,6 +865,9 @@ class ControllerExecution extends Controller
                 break;
             case 'relationBulkUpdate':
                 $output = $this->doRelationBulkUpdate($model, $request, $data, $relationName);
+                break;
+            case 'relationOfRelationIndex':
+                $output = $this->doRelationOfRelationIndex($model, new GenericIndexRequest($request->all()), $data, $relationClass, $relationModel, $relationOfRelationClass);
                 break;
                 // FUNCTIONS
             case 'modelFunction':

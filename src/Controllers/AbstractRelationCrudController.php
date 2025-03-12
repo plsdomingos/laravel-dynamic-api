@@ -19,7 +19,7 @@ abstract class AbstractRelationCrudController extends ControllerExecution
      * Public function to execute `relationIndex`.
      * 
      * @param object model The model to get the relation.
-     * @param \LaravelDynamicApi\Requests\GenericShowRequest request The request object
+     * @param \LaravelDynamicApi\Requests\GenericIndexRequest request The request object
      * @param array data The validated request data.
      * @param string relation The relation name.
      * 
@@ -30,7 +30,7 @@ abstract class AbstractRelationCrudController extends ControllerExecution
      * @since 01.04.2022
      * @author Pedro Domingos <pedro@panttera.com>
      */
-    public abstract function dynamicRelationIndex(GenericShowRequest $request, string $modelName, string $modelId, string $relationName);
+    public abstract function dynamicRelationIndex(GenericIndexRequest $request, string $modelName, string $modelId, string $relationName);
     protected abstract function doRelationIndex(object $model, GenericIndexRequest $request, array $data, string $relation);
 
     /**
