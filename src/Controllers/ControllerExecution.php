@@ -222,6 +222,7 @@ class ControllerExecution extends Controller
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
@@ -238,6 +239,7 @@ class ControllerExecution extends Controller
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -257,6 +259,7 @@ class ControllerExecution extends Controller
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
@@ -273,6 +276,7 @@ class ControllerExecution extends Controller
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -292,6 +296,7 @@ class ControllerExecution extends Controller
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
@@ -308,6 +313,7 @@ class ControllerExecution extends Controller
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -373,6 +379,7 @@ class ControllerExecution extends Controller
         $type = $type ?? $this->type;
         $request = $request ?? $this->request;
         $data = empty($data) ? $this->data : $data;
+        $returnObject = $this->returnObject;
         $modelClass = $modelClass ?? $this->modelClass;
         $modelName = $modelName ?? $this->modelName;
         // TODO: Check when it's a function if we have a problem here.
@@ -387,32 +394,36 @@ class ControllerExecution extends Controller
 
         if ($relationOfRelationClass) {
             if ($relationOfRelationModel) {
-                $relationOfRelationModel = $relationOfRelationModel->afterModelFunction(
+                $returnObject = $relationOfRelationModel->afterModelFunction(
                     $type,
                     $request,
                     $data,
+                    $returnObject,
                     $modelClass,
                     $modelName,
                     $model,
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
                     $this->authUser,
                 );
             }
-            $data = $relationOfRelationClass::afterFunction(
+            $returnObject = $relationOfRelationClass::afterFunction(
                 $type,
                 $request,
                 $data,
+                $returnObject,
                 $modelClass,
                 $modelName,
                 $model,
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -422,32 +433,36 @@ class ControllerExecution extends Controller
 
         if ($relationClass) {
             if ($relationModel) {
-                $relationModel = $relationModel->afterModelFunction(
+                $returnObject = $relationModel->afterModelFunction(
                     $type,
                     $request,
                     $data,
+                    $returnObject,
                     $modelClass,
                     $modelName,
                     $model,
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
                     $this->authUser,
                 );
             }
-            $data = $relationClass::afterFunction(
+            $returnObject = $relationClass::afterFunction(
                 $type,
                 $request,
                 $data,
+                $returnObject,
                 $modelClass,
                 $modelName,
                 $model,
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -457,32 +472,36 @@ class ControllerExecution extends Controller
 
         if ($modelClass) {
             if ($model) {
-                $model = $model->afterModelFunction(
+                $returnObject = $model->afterModelFunction(
                     $type,
                     $request,
                     $data,
+                    $returnObject,
                     $modelClass,
                     $modelName,
                     $model,
                     $relationClass,
                     $relationName,
                     $relationModel,
+                    $relationOfRelationClass,
                     $relationOfRelationName,
                     $relationOfRelationModel,
                     $locale,
                     $this->authUser,
                 );
             }
-            $data = $modelClass::afterFunction(
+            $returnObject = $modelClass::afterFunction(
                 $type,
                 $request,
                 $data,
+                $returnObject,
                 $modelClass,
                 $modelName,
                 $model,
                 $relationClass,
                 $relationName,
                 $relationModel,
+                $relationOfRelationClass,
                 $relationOfRelationName,
                 $relationOfRelationModel,
                 $locale,
@@ -491,10 +510,7 @@ class ControllerExecution extends Controller
         }
 
         // Set Global Variables
-        $this->data = $data;
-        $this->relationModel = $relationModel;
-        $this->model = $model;
-        $this->relationOfRelationModel = $relationOfRelationModel;
+        $this->returnObject = $returnObject;
 
         $this->afterFunction();
     }

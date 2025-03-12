@@ -843,7 +843,8 @@ class Model extends BaseModel
      * @param string|null $relationClass The class related with the $relationName from the request.
      * @param string|null $relationName The relation name. The third element of the route.
      * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
-     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param string|null $relationOfRelationClass The class related with the $relationOfRelationName from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route.
      * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
      * @param string $locale Request locale.
      * @param object|null $authUser Authenticaded user.
@@ -860,6 +861,7 @@ class Model extends BaseModel
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationClass,
         string | null $relationOfRelationName,
         object | null $relationOfRelationModel,
         string $locale,
@@ -885,7 +887,8 @@ class Model extends BaseModel
      * @param string|null $relationClass The class related with the $relationName from the request.
      * @param string|null $relationName The relation name. The third element of the route.
      * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
-     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param string|null $relationOfRelationClass The class related with the $relationOfRelationName from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route.
      * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
      * @param string $locale Request locale.
      * @param object|null $authUser Authenticaded user.
@@ -902,6 +905,7 @@ class Model extends BaseModel
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationClass,
         string | null $relationOfRelationName,
         object | null $relationOfRelationModel,
         string $locale,
@@ -923,12 +927,13 @@ class Model extends BaseModel
      * @param array $data API data after validation.
      * @param mixed $returnObject The return object..
      * @param string $modelClass The class related with the $modelName from the request.
-     * @param string $modelName The model name. The first element of the route.
+     * @param string|null  $modelName The model name. The first element of the route.
      * @param object|null $model The object getted from the $modelName and the $modelId from the request.
      * @param string|null $relationClass The class related with the $relationName from the request.
      * @param string|null $relationName The relation name. The third element of the route.
      * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
-     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param string|null $relationOfRelationClass The class related with the $relationOfRelationName from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route.
      * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
      * @param string $locale Request locale.
      * @param object|null $authUser Authenticaded user.
@@ -942,11 +947,12 @@ class Model extends BaseModel
         array $data,
         mixed $returnObject,
         string $modelClass,
-        string $modelName,
+        string | null $modelName,
         object | null $model,
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationClass,
         string | null $relationOfRelationName,
         object | null $relationOfRelationModel,
         string $locale,
@@ -968,12 +974,13 @@ class Model extends BaseModel
      * @param array $data API data after validation.
      * @param mixed $returnObject The return object..
      * @param string $modelClass The class related with the $modelName from the request.
-     * @param string $modelName The model name. The first element of the route.
+     * @param string|null  $modelName The model name. The first element of the route.
      * @param object|null $model The object getted from the $modelName and the $modelId from the request.
      * @param string|null $relationClass The class related with the $relationName from the request.
      * @param string|null $relationName The relation name. The third element of the route.
      * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
-     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param string|null $relationOfRelationClass The class related with the $relationOfRelationName from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route.
      * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
      * @param string $locale Request locale.
      * @param object|null $authUser Authenticaded user.
@@ -987,11 +994,12 @@ class Model extends BaseModel
         array $data,
         mixed $returnObject,
         string $modelClass,
-        string $modelName,
+        string | null $modelName,
         object | null $model,
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationClass,
         string | null $relationOfRelationName,
         object | null $relationOfRelationModel,
         string $locale,
