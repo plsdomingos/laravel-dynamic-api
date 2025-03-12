@@ -290,4 +290,108 @@ trait CrudDoRelationFunctionsTrait
         }
         return $deletedModels;
     }
+
+    protected function doRelationOfRelationIndex(
+        object $model,
+        GenericIndexRequest $request,
+        array $data,
+        string $relationClass,
+        object $relationModel,
+        string $relationOfRelationClass
+    ): object {
+        $relationOfRelationOutput = $this->relationOfRelationOutput;
+        $relationOfRelationName = $this->relationOfRelationName;
+
+        $onlyOne = false;
+        $output = Constants::OUTPUT_SIMPLIFIED;
+        if (method_exists($relationModel, $relationOfRelationName)) {
+            if ($relationModel->$relationOfRelationName() instanceof BelongsTo || $relationModel->$relationOfRelationName() instanceof HasOne) {
+                $onlyOne = true;
+                $output = Constants::OUTPUT_COMPLETE;
+            }
+        }
+
+        // TODO Check first the model then if does not exists get from the relationModel.
+        if (!($relationOfRelationOutput instanceof Collection)) {
+            $visibleHidden = $this->getRelationVisibleAndHiddenExecution(
+                $relationModel,
+                $this->relationName,
+                $relationOfRelationOutput[0],
+                $output
+            );
+            return $relationOfRelationOutput->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
+        }
+
+        if (!$relationOfRelationOutput->isEmpty()) {
+            $relationOfRelationOutput = $this->collectionFilter(
+                $this->modelClass,
+                $this->relationClass,
+                $relationOfRelationOutput,
+                $relationOfRelationOutput[0]->pivot,
+                json_decode($request->filter),
+                $relationOfRelationOutput[0]::IGNORE_FILTERS,
+                $relationOfRelationOutput[0]::TERM_FILTERS
+            );
+
+            if (!$relationOfRelationOutput->isEmpty()) {
+                $visibleHidden = $this->getRelationVisibleAndHiddenExecution(
+                    $relationModel,
+                    $this->relationName,
+                    $relationOfRelationOutput[0],
+                    $output
+                );
+
+                // Hide/show the relation fields.
+                foreach ($relationOfRelationOutput as $resultCollection) {
+                    $relationOfRelationModelClass = $this->getModelClass($this->relationOfRelationName);
+                    foreach ($relationOfRelationModelClass::WITH_FIELDS as $withField) {
+                        if (!in_array($withField, $visibleHidden['makeVisible'])) {
+                            continue;
+                        }
+
+                        $modelRelationVisibileHidden = $this->getVisibleAndHidden(
+                            $this->getModelClass($withField),
+                            Constants::OUTPUT_SIMPLIFIED
+                        );
+
+                        if ($modelRelationVisibileHidden === null) {
+                            continue;
+                        }
+
+                        dd($withField);
+                        $resultCollection->$withField
+                            ->makeVisible($modelRelationVisibileHidden['makeVisible'])
+                            ->makeHidden($modelRelationVisibileHidden['makeHidden']);
+                    }
+                }
+
+                $relationOfRelationOutput = $relationOfRelationOutput->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
+            }
+        }
+
+        if ($onlyOne) {
+            return $relationOfRelationOutput->first();
+        }
+        // Sort the relation
+        if ($this->sortOrder === 'asc' || $this->sortOrder === 'ASC') {
+            $relationOfRelationOutput = $relationOfRelationOutput->sortBy($this->sortBy, SORT_NATURAL | SORT_FLAG_CASE)->values();
+        } else {
+            $relationOfRelationOutput = $relationOfRelationOutput->sortByDesc($this->sortBy, SORT_NATURAL | SORT_FLAG_CASE)->values();
+        }
+
+        // Default paginated
+        if ($this->paginated === null) {
+            $this->paginated = $relationModel::isPaginated($this->type, $this->output);
+        }
+
+        if ($this->paginated === true) {
+            $range = [$this->perPage * ($this->page - 1), $this->perPage * ($this->page)];
+            $this->total = count($relationOfRelationOutput);
+            $result = array_slice($relationOfRelationOutput->toArray(), $range[0], $range[1] - $range[0]);
+            $result = $this->returnPaginatedDetails('', $result, $this->total);
+            return $result;
+        }
+
+        return $relationOfRelationOutput;
+    }
 }

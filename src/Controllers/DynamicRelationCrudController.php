@@ -7,6 +7,7 @@ use LaravelDynamicApi\Traits\CrudDoRelationFunctionsTrait;
 use LaravelDynamicApi\Traits\RouteServiceProviderTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use LaravelDynamicApi\Requests\GenericIndexRequest;
 
 /**
  * Dynamic related crud controller.
@@ -34,23 +35,29 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
     /**
      * Public function to execute the `relationIndex` method dynamicly.
      * 
-     * @param \LaravelDynamicApi\Requests\GenericShowRequest request The request object
-     * @param string modelClass The model class name.
-     * @param any model The model to return.
-     * @param string relation The model relation.
+     * @param \LaravelDynamicApi\Requests\GenericIndexRequest request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
      * 
      * @return JsonResponse|XmlResponse The JsonResponse with all elements.
      * 
      * @since 09.06.2022
      * @author Pedro Domingos <pedro@panttera.com>
      */
-    public function dynamicRelationIndex(GenericShowRequest $request, string $modelName, string $modelId, string $relationName)
+    public function dynamicRelationIndex(GenericIndexRequest $request, string $modelName, string $modelId, string $relationName)
     {
         return $this->execute();
     }
 
     /**
      * Dynamic get relation model of a specific model function.
+     * 
+     * @param \LaravelDynamicApi\Requests\GenericShowRequest request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
+     * @param string relationModelId The relation model identifier.
      * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
@@ -65,6 +72,12 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
     /**
      * Dynamic get relation model of a specific model function.
      * 
+     * @param Request request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
+     * @param string relationModelId The relation model identifier.
+     * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
      * @since 09.06.2022
@@ -77,6 +90,11 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
 
     /**
      * Dynamic store relation model.
+     * 
+     * @param Request request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
      * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
@@ -91,6 +109,11 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
     /**
      * Dynamic bulk updtea relation model of a specific model function.
      * 
+     * @param Request request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
+     * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
      * @since 09.06.2022
@@ -101,9 +124,13 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
         return $this->execute();
     }
 
-    // dynamicRelationDelete 
     /**
-     * Dynamic bulk updtea relation model of a specific model function.
+     * Dynamic bulk delete relation model of a specific model function.
+     * 
+     * @param \LaravelDynamicApi\Requests\GenericShowRequest request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
      * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
@@ -115,16 +142,42 @@ class DynamicRelationCrudController extends AbstractRelationCrudController
         return $this->execute();
     }
 
-
     /**
      * Generic function to run a relation model function.
+     * 
+     * @param Request request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
+     * @param string relationModelId The relation model identifier.
+     * @param string function The function name.
      * 
      * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
      * 
      * @since 07.06.2022
      * @author Pedro Domingos <pedro@panttera.com>
      */
-    public function dynamicRelationModelFunction(GenericShowRequest $request, string $modelName, string $modelId, string $relationName, string $relationModelId, string $function)
+    public function dynamicRelationModelFunction(Request $request, string $modelName, string $modelId, string $relationName, string $relationModelId, string $function)
+    {
+        return $this->execute();
+    }
+
+    /**
+     * Public function to execute the `relationOfRelationIndex` method dynamicly.
+     * 
+     * @param \LaravelDynamicApi\Requests\GenericIndexRequest request The request object
+     * @param string modelName The model name.
+     * @param string modelId The model identifier.
+     * @param string relationName The relation model name.
+     * @param string relationModelId The relation model identifier.
+     * @param string relationOfRelationName The relation of relation name.
+     * 
+     * @return JsonResponse|XmlResponse The JsonResponse or XmlResponse with all elements.
+     * 
+     * @since 07.06.2022
+     * @author Pedro Domingos <pedro@panttera.com>
+     */
+    public function dynamicRelationOfRelationIndex(GenericIndexRequest $request, string $modelName, string $modelId, string $relationName, string $relationModelId, string $relationOfRelationName)
     {
         return $this->execute();
     }

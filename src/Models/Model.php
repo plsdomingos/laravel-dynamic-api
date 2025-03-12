@@ -778,6 +778,8 @@ class Model extends BaseModel
             case 'destroy':
             case 'relationIndex':
             case 'relationShow':
+            case 'relationOfRelationIndex':
+            case 'relationOfRelationShow':
                 return false;
             default:
                 return true;
@@ -828,14 +830,25 @@ class Model extends BaseModel
     /**
      * Function to run before the show, update and destroy functions.
      * 
-     * By default this function doesn't have any logic inside.
+     * By default this function doesn't have any logic inside, just return the input data variable.
      * 
      * Overwride this funtion inside the model, if neessary.
      * 
-     * @param object $model The model.
-     * @param string $type show | update | destroy
-     * @param $authUser Authenticated user
+     * @param string $type API request type. 
+     * @param Request $request API request.
+     * @param array $data API data after validation.
+     * @param string $modelClass The class related with the $modelName from the request.
+     * @param string $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
+     * @param object|null $authUser Authenticaded user.
      * 
+     * @return array $data The return will set globally in controller the data variable.
      */
     public static function beforeFunction(
         string $type,
@@ -847,22 +860,37 @@ class Model extends BaseModel
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationName,
+        object | null $relationOfRelationModel,
         string $locale,
         object | null $authUser,
-    ): void {
+    ): array {
         // To be overwritten in the model.
+        return $data;
     }
+
     /**
-     * Function to run before the show, update and destroy functions.
+     * Function to run before execute functions.
      * 
-     * By default this function doesn't have any logic inside.
+     * By default this function doesn't have any logic inside and just return the model.
      * 
      * Overwride this funtion inside the model, if neessary.
      * 
-     * @param object $model The model.
-     * @param string $type show | update | destroy
-     * @param $authUser Authenticated user
+     * @param string $type API request type. 
+     * @param Request $request API request.
+     * @param array $data API data after validation.
+     * @param string $modelClass The class related with the $modelName from the request.
+     * @param string $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
+     * @param object|null $authUser Authenticaded user.
      * 
+     * @return object The return will set globally in controller the respective model variable ($model, $relationModel or $relationOfRelationModel).
      */
     public function beforeModelFunction(
         string $type,
@@ -874,23 +902,38 @@ class Model extends BaseModel
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationName,
+        object | null $relationOfRelationModel,
         string $locale,
         object | null $authUser,
-    ) {
+    ): object {
         // To be overwritten in the model.
         return $this;
     }
 
     /**
-     * Function to run after the show, store, update and destroy functions.
+     * Function to run after execute functions.
      * 
-     * By default this function doesn't have any logic inside.
+     * By default this function doesn't have any logic inside and just return the returnObject.
      * 
      * Overwride this funtion inside the model, if neessary.
      * 
-     * @param object $model The model.
-     * @param string $type show | store | update | destroy
-     * @param $authUser Authenticated user
+     * @param string $type API request type. 
+     * @param Request $request API request.
+     * @param array $data API data after validation.
+     * @param mixed $returnObject The return object..
+     * @param string $modelClass The class related with the $modelName from the request.
+     * @param string $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
+     * @param object|null $authUser Authenticaded user.
+     * 
+     * @return mixed The return will set globally in controller the controller variable $returnObject.
      * 
      */
     public static function afterFunction(
@@ -904,6 +947,8 @@ class Model extends BaseModel
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationName,
+        object | null $relationOfRelationModel,
         string $locale,
         object | null $authUser,
     ): mixed {
@@ -918,26 +963,42 @@ class Model extends BaseModel
      * 
      * Overwride this funtion inside the model, if neessary.
      * 
-     * @param object $model The model.
-     * @param string $type show | store | update | destroy
-     * @param $authUser Authenticated user
+     * @param string $type API request type. 
+     * @param Request $request API request.
+     * @param array $data API data after validation.
+     * @param mixed $returnObject The return object..
+     * @param string $modelClass The class related with the $modelName from the request.
+     * @param string $modelName The model name. The first element of the route.
+     * @param object|null $model The object getted from the $modelName and the $modelId from the request.
+     * @param string|null $relationClass The class related with the $relationName from the request.
+     * @param string|null $relationName The relation name. The third element of the route.
+     * @param object|null $relationModel The object getted from the $relationName and the $relationModelId from the request.
+     * @param string|null $relationOfRelationName The relation of relation name. The fith element of the route..
+     * @param object|null $relationOfRelationModel The object getted from the $relationOfRelationName and the $relationOfRelationModelId from the request.
+     * @param string $locale Request locale.
+     * @param object|null $authUser Authenticaded user.
+     * 
+     * @return mixed The return will set globally in controller the controller variable $returnObject.
      * 
      */
     public function afterModelFunction(
         string $type,
         Request $request,
         array $data,
+        mixed $returnObject,
         string $modelClass,
         string $modelName,
         object | null $model,
         string | null $relationClass,
         string | null $relationName,
         object | null $relationModel,
+        string | null $relationOfRelationName,
+        object | null $relationOfRelationModel,
         string $locale,
         object | null $authUser,
-    ): object {
+    ): mixed {
         // To be overwritten in the model.
-        return $this;
+        return $returnObject;
     }
 
     public static function requestFilter(
