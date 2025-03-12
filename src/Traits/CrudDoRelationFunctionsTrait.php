@@ -358,7 +358,6 @@ trait CrudDoRelationFunctionsTrait
                             continue;
                         }
 
-                        dd($withField);
                         $resultCollection->$withField
                             ->makeVisible($modelRelationVisibileHidden['makeVisible'])
                             ->makeHidden($modelRelationVisibileHidden['makeHidden']);
