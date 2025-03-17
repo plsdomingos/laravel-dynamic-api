@@ -138,7 +138,7 @@ trait CrudDoFunctionsTrait
                     return $this->page;
                 });
                 $result = $query
-                    ->paginate($this->perPage);
+                    ->paginate($this->perPage)->withQueryString();
 
                 $result->setCollection($result->getCollection()
                     ->makeVisible($visibleHidden['makeVisible'])
@@ -162,6 +162,10 @@ trait CrudDoFunctionsTrait
                         }
                     }
                 }
+
+                // Add query
+                $result = collect($result);
+                $result->put('query', substr(str_replace($this->request->url(), '', $this->request->fullUrl()), 1));
             } else {
                 $result = $query
                     ->get()
