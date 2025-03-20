@@ -415,8 +415,10 @@ trait CrudDoFunctionsTrait
             $data,
             $this->modelClass,
             $this->modelName,
+            $this->model,
             $this->relationClass,
             $this->relationName,
+            $this->relationModel,
             $this->locale,
             $this->authUser
         );
