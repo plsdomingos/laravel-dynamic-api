@@ -715,19 +715,19 @@ class ControllerExecution extends Controller
 
             foreach ($rules as $field => $rule) {
                 if (is_array($rule)) {
-                    // Ignore the profiles check if the user is super admin
+                    // Ignore the roles check if the user is super admin
                     if ($this->modelClass::isAuthRequired($type)) {
                         if (!$this->authUser->isSuperAdmin()) {
-                            if (array_key_exists('profiles', $rule)) {
-                                if (!empty($rule['profiles'])) {
-                                    // If the user is not autheticated and profiles is filled, remove this field.
+                            if (array_key_exists('roles', $rule)) {
+                                if (!empty($rule['roles'])) {
+                                    // If the user is not autheticated and roles is filled, remove this field.
                                     if (!$this->authUser) {
                                         $rules = Arr::except($rules, $field);
                                         continue;
                                     }
                                 }
-                                // If the user does not contains at least on of the required profiles, remove this field.
-                                if (!$this->authUser->containsProfile($rule['profiles'])) {
+                                // If the user does not contains at least on of the required roles, remove this field.
+                                if (!$this->authUser->containsRoles($rule['roles'])) {
                                     $rules = Arr::except($rules, $field);
                                     continue;
                                 }
