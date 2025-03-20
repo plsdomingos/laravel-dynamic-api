@@ -1056,9 +1056,32 @@ class Model extends BaseModel
      * @author Pedro Domingos <pedro@panttera.com>
      */
     public static function collectionFilter(
-        string $modelClass,
         mixed $query,
+        mixed $pivot,
         mixed $filter,
+        string | null $term,
+        array $ignoreFilters,
+        array $termFilters,
+        array $relationIgnoreFilters,
+        array $relationTermFilters,
+        array $relationOfRelationIgnoreFilter,
+        array $relationOfRelationTermFilters,
+        string $modelClass,
+        string $modelName,
+        object $model,
+        string $relationClass,
+        string $relationName,
+        object | null $relationModel,
+        object | null $relationOfRelationClass,
+        object | null $relationOfRelationName,
+        mixed  $sortBy,
+        mixed  $sortOrder,
+        mixed  $sortByRaw,
+        array  $ignoreSort,
+        array $relationIgnoreSort,
+        array $relationOfRelationIgnoreSort,
+        int $page,
+        int $perPage,
         object | null $authUser,
     ): mixed {
         // To be overwritten in the model.

@@ -71,13 +71,9 @@ trait CrudDoRelationFunctionsTrait
 
         if (!$relationOutput->isEmpty()) {
             $relationOutput = $this->collectionFilter(
-                $this->modelClass,
-                $this->relationClass,
                 $relationOutput,
                 $relationOutput[0]->pivot,
                 json_decode($request->filter),
-                $relationOutput[0]::IGNORE_FILTERS,
-                $relationOutput[0]::TERM_FILTERS
             );
 
             if (!$relationOutput->isEmpty()) {
@@ -90,8 +86,7 @@ trait CrudDoRelationFunctionsTrait
 
                 // Hide/show the relation fields.
                 foreach ($relationOutput as $resultCollection) {
-                    $relationModelClass = $this->getModelClass($this->relationName);
-                    foreach ($relationModelClass::WITH_FIELDS as $withField) {
+                    foreach ($this->relationClass::WITH_FIELDS as $withField) {
                         if (!in_array($withField, $visibleHidden['makeVisible'])) {
                             continue;
                         }

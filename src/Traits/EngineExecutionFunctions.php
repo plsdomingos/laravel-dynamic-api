@@ -24,10 +24,10 @@ trait EngineExecutionFunctions
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function requestFilter(
-        string $modelClass,
         mixed $query,
         mixed $filter = null,
         string $term = null,
+        string $modelClass = null,
         array $ignoreFilters = null,
         array $termFilters = null,
         array $relationTermFilters = null,
@@ -39,6 +39,7 @@ trait EngineExecutionFunctions
         int $perPage = null,
     ): mixed {
         // Set fields
+        $modelClass = $modelClass ?? $this->modelClass;
         $ignoreFilters = $ignoreFilters ?? $modelClass::IGNORE_FILTERS;
         $termFilters = $termFilters ?? $modelClass::TERM_FILTERS;
         $relationTermFilters = $relationTermFilters ?? $modelClass::RELATION_TERM_FILTERS;
@@ -72,10 +73,10 @@ trait EngineExecutionFunctions
         }
 
         $query = $modelClass::requestFilter(
-            $modelClass,
             $query,
             $filter,
             $term,
+            $modelClass,
             $ignoreFilters,
             $termFilters,
             $relationTermFilters,
@@ -98,10 +99,10 @@ trait EngineExecutionFunctions
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function requestSort(
-        string $modelClass,
         mixed $query,
         mixed $filter = null,
         string $term = null,
+        string $modelClass = null,
         array $ignoreFilters = null,
         array $termFilters = null,
         array $relationTermFilters = null,
@@ -114,6 +115,7 @@ trait EngineExecutionFunctions
 
     ): mixed {
         // Set fields
+        $modelClass = $modelClass ?? $this->modelClass;
         $ignoreFilters = $ignoreFilters ?? $modelClass::IGNORE_FILTERS;
         $termFilters = $termFilters ?? $modelClass::TERM_FILTERS;
         $relationTermFilters = $relationTermFilters ?? $modelClass::RELATION_TERM_FILTERS;
@@ -140,10 +142,10 @@ trait EngineExecutionFunctions
         }
 
         $query = $modelClass::requestSort(
-            $modelClass,
             $query,
             $filter,
             $term,
+            $modelClass,
             $ignoreFilters,
             $termFilters,
             $relationTermFilters,
@@ -169,19 +171,120 @@ trait EngineExecutionFunctions
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function collectionFilter(
-        string $modelClass,
-        string $modelRelationClass,
         mixed $query,
         mixed $pivot,
-        $filter = null,
-        $ignoreFilters = [],
-        $termFilters = []
+        mixed $filter = null,
+        string $term = null,
+        array | null $ignoreFilters = null,
+        array | null $termFilters = null,
+        array | null $relationIgnoreFilters = null,
+        array | null $relationTermFilters = null,
+        array | null $relationOfRelationIgnoreFilters = null,
+        array | null $relationOfRelationTermFilters = null,
+        string | null $modelClass = null,
+        string | null $modelName = null,
+        object | null $model = null,
+        string | null $relationClass = null,
+        string | null $relationName = null,
+        object | null $relationModel = null,
+        object | null $relationOfRelationClass = null,
+        object | null $relationOfRelationName = null,
+        mixed $sortBy = null,
+        mixed $sortOrder = null,
+        mixed $sortByRaw = null,
+        array $ignoreSort = null,
+        array $relationIgnoreSort = null,
+        array $relationOfRelationIgnoreSort = null,
+        int $page = null,
+        int $perPage = null,
     ): mixed {
+        // set values
+        $request = $request ?? $this->request;
+        $data = empty($data) ? $this->data : $data;
+        $modelClass = $modelClass ?? $this->modelClass;
+        $modelName = $modelName ?? $this->modelName;
+        $model = $model ?? $this->model;
+        $relationClass = $relationClass ?? $this->relationClass;
+        $relationName = $relationName ?? $this->relationName;
+        $relationModel = $relationModel ?? $this->relationModel;
+        $relationOfRelationClass = $relationOfRelationClass ?? $this->relationOfRelationClass;
+        $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
+        $locale = $locale ?? $this->locale;
+        $ignoreFilters = $ignoreFilters ?? $modelClass::IGNORE_FILTERS;
+        $termFilters = $termFilters ?? $modelClass::TERM_FILTERS;
+        $relationIgnoreFilters = $relationIgnoreFilters ?? $relationClass::IGNORE_FILTERS;
+        $relationTermFilters = $relationTermFilters ?? $relationClass::TERM_FILTERS;
+        $relationOfRelationIgnoreFilters = $relationOfRelationIgnoreFilters ?? $relationOfRelationClass ? $relationOfRelationClass::IGNORE_FILTERS : [];
+        $relationOfRelationTermFilters = $relationOfRelationTermFilters ?? $relationOfRelationClass ? $relationOfRelationClass::TERM_FILTERS : [];
+        $ignoreSort = $ignoreSort ?? $modelClass::IGNORE_SORT;
+        $relationIgnoreSort = $relationIgnoreSort ?? $relationClass::IGNORE_SORT;
+        $relationOfRelationIgnoreSort = $relationOfRelationIgnoreSort ?? $relationOfRelationClass ?  $relationOfRelationClass::IGNORE_SORT : [];
+        $sortBy = $sortBy ?? $this->sortBy;
+        $sortOrder = $sortOrder ?? $this->sortOrder;
+        $sortByRaw = $sortByRaw ?? $this->sortByRaw;
+        $page = $page ?? $this->page;
+        $perPage = $perPage ?? $this->perPage;
+        $term = $term ?? $this->term;
 
-        $query = $modelRelationClass::collectionFilter(
-            $modelRelationClass,
+        if ($relationOfRelationClass) {
+            $query = $relationOfRelationClass::collectionFilter(
+                $query,
+                $pivot,
+                $filter,
+                $term,
+                $ignoreFilters,
+                $termFilters,
+                $relationIgnoreFilters,
+                $relationTermFilters,
+                $relationOfRelationIgnoreFilters,
+                $relationOfRelationTermFilters,
+                $modelClass,
+                $modelName,
+                $model,
+                $relationClass,
+                $relationName,
+                $relationModel,
+                $relationOfRelationClass,
+                $relationOfRelationName,
+                $sortBy,
+                $sortOrder,
+                $sortByRaw,
+                $ignoreSort,
+                $relationIgnoreSort,
+                $relationOfRelationIgnoreSort,
+                $page,
+                $perPage,
+                $this->authUser,
+            );
+        }
+
+        $query = $relationClass::collectionFilter(
             $query,
+            $pivot,
             $filter,
+            $term,
+            $ignoreFilters,
+            $termFilters,
+            $relationIgnoreFilters,
+            $relationTermFilters,
+            $relationOfRelationIgnoreFilters,
+            $relationOfRelationTermFilters,
+            $modelClass,
+            $modelName,
+            $model,
+            $relationClass,
+            $relationName,
+            $relationModel,
+            $relationOfRelationClass,
+            $relationOfRelationName,
+            $sortBy,
+            $sortOrder,
+            $sortByRaw,
+            $ignoreSort,
+            $relationIgnoreSort,
+            $relationOfRelationIgnoreSort,
+            $page,
+            $perPage,
             $this->authUser,
         );
 
@@ -202,7 +305,7 @@ trait EngineExecutionFunctions
                         }));
                     }
                     // Transformed the query output to a model collection.
-                    $query = $modelRelationClass::whereIn('id', $queryOutput->pluck('id'))->get();
+                    $query = $relationClass::whereIn('id', $queryOutput->pluck('id'))->get();
                     continue;
                 }
                 if ($pivot && array_key_exists('school_id', $pivot->toArray())) {
