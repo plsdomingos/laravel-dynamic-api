@@ -77,7 +77,7 @@ trait EngineRequestFunctions
         if ($this->authUser) {
             $yesterday = Carbon::now()->setHours(0)->setMinutes(0)->setSeconds(0);
             if ($this->authUser->last_login_at < $yesterday) {
-                UserOnline::create(['user_id' => $this->authUser->id, 'date' => Carbon::now()]);
+                // UserOnline::create(['user_id' => $this->authUser->id, 'date' => Carbon::now()]);
             }
             $this->authUser->update(['last_login_at' => Carbon::now()]);
         }
