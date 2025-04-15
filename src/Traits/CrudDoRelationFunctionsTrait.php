@@ -159,7 +159,13 @@ trait CrudDoRelationFunctionsTrait
                 Constants::OUTPUT_COMPLETE
             );
 
-            $relationModel = $relationModel->makeVisible('school_type')->makeHidden($visibleHidden['makeHidden']);
+            $relationModel = $relationModel->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
+
+            foreach ($visibleHidden['makeVisible'] as $makeVisible) {
+                if (in_array($makeVisible, $relationModel::WITH_FIELDS)) {
+                    $relationModel->$makeVisible;
+                }
+            }
         }
         return $relationModel;
     }
