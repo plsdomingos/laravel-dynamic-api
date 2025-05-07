@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Engine execution functions
@@ -104,6 +105,7 @@ trait EngineRequestFunctions
                 $model = collect($this->model);
             } catch (Exception $e) {
                 // Ignore. The problem it could be getting the model.
+                $model = null;
             }
 
             $returnObject = null;
@@ -111,10 +113,20 @@ trait EngineRequestFunctions
                 $returnObject = collect($this->returnObject);
             } catch (Exception $e) {
                 // Ignore. The problem it could be getting the returnObject.
+                $returnObject = null;
             }
 
+            $relationOutput = null;
+            try {
+                $relationOutput = collect($this->relationOutput);
+            } catch (Exception $e) {
+                // Ignore. The problem it could be getting the relationOutput.
+                $relationOutput = null;
+            }
+
+            $requestId = $this->userRequest ?  $this->userRequest->id : null;
             $failedRequestData = [
-                'request_id' => $this->userRequest ?  $this->userRequest->id : null,
+                'request_id' => $requestId,
                 'headers' => $this->request->header(),
                 'accept_xml' => $this->acceptXML,
                 'is_function' => $this->isFunction,
@@ -141,7 +153,7 @@ trait EngineRequestFunctions
                 'model_table' => $this->modelTable,
                 'model_translation_table' => $this->modelTranslationTable,
                 'relation_class' => $this->relationClass,
-                'relation_output' => $this->relationOutput,
+                'relation_output' => $relationOutput,
                 'relation_model' => $this->relationModel,
                 'specific_model' => $this->specificModel,
                 'relation_specific_model' => $this->relationSpecificModel,
@@ -151,7 +163,12 @@ trait EngineRequestFunctions
                 'data' => $this->data,
                 'return_object' => $returnObject,
             ];
-            FailedRequest::create($failedRequestData);
+            try {
+                FailedRequest::create($failedRequestData);
+            } catch (Exception $e) {
+                // Ignore.
+                Log::error('Failed to save failed request id: ' . $requestId . 'Message: ' . $e->getMessage() . ' in file ' . $e->getFile() . ' on line ' . $e->getLine());
+            }
         }
     }
 
