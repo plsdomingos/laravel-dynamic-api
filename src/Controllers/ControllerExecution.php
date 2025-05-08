@@ -122,7 +122,7 @@ class ControllerExecution extends Controller
             switch ($this->returnType()) {
                 case 'export':
                     return (new Collection(array_merge(
-                        [$this->modelClass::EXCEL_EXPORT_HEADER],
+                        [$this->modelClass::getExcelHeaders()],
                         $this->modelClass::getExcelExportData(
                             $this->type,
                             $this->request,

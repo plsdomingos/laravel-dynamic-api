@@ -1256,4 +1256,12 @@ class Model extends BaseModel
             }
         });
     }
+
+    /**
+     * Static function to add the excel headers to the export.
+     */
+    public static function getExcelHeaders()
+    {
+        return static::EXCEL_EXPORT_HEADER;
+    }
 }
