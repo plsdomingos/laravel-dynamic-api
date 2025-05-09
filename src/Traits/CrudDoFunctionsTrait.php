@@ -225,6 +225,7 @@ trait CrudDoFunctionsTrait
             ->makeHidden($visibleHidden['makeHidden']);
 
         // Hide/show the relation fields.
+        // Same function in doUpodate. Create a generic one.
         foreach ($model::WITH_FIELDS as $withField) {
             if (!in_array($withField, $visibleHidden['makeVisible'])) {
                 continue;
@@ -294,11 +295,43 @@ trait CrudDoFunctionsTrait
         // Force Update updated_at
         $model->touch();
 
-        return $model->fresh()
+        $response = $model->fresh()
             ->load($model::COMPLETE_WITH_FIELDS)
             ->loadCount($model::WITH_FIELDS)
             ->makeVisible($visibleHidden['makeVisible'])
             ->makeHidden($visibleHidden['makeHidden']);
+
+        // Hide/show the relation fields.
+        // Same function in doShow. Create a generic one.
+        foreach ($model::WITH_FIELDS as $withField) {
+            if (!in_array($withField, $visibleHidden['makeVisible'])) {
+                continue;
+            }
+            $onlyOne = false;
+
+            if ($response->$withField() instanceof BelongsTo || $response->$withField() instanceof HasOne) {
+                $onlyOne = true;
+            }
+
+            $withFieldToGet = [];
+            if ($response->$withField()->first()) {
+                $withFieldToGet = get_class($response->$withField()->first())::WITH_FIELDS;
+            }
+
+            $withFieldUpdated = $response->$withField()->with($withFieldToGet)->get()
+                ->makeVisible($visibleHidden[$withField]['makeVisible'])
+                ->makeHidden($visibleHidden[$withField]['makeHidden']);
+
+            unset($response->$withField);
+            $response->$withField = $withFieldUpdated;
+
+
+            if ($onlyOne) {
+                $response->$withField = $response->$withField->first();
+            }
+        }
+
+        return $response;
     }
 
     /**

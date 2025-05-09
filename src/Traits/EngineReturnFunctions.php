@@ -408,10 +408,15 @@ trait EngineReturnFunctions
 
             $relationClass = $this->getModelClass($withField);
             $hasRelationModels = config('laravel-dynamic-api.has_relation_models', null);
-            if ($hasRelationModels && in_array($model . '_' . $withField, $hasRelationModels)) {
-                $relationClass = $hasRelationModels[$model . '_' . $withField];
-            }
 
+            $className = $model;
+            if (!is_string($model)) {
+                $className = $model::class;
+            }
+            $tableName = app()->make($className)->getTable();
+            if ($hasRelationModels && in_array($tableName . '_' . $withField, $hasRelationModels)) {
+                $relationClass = $hasRelationModels[$tableName . '_' . $withField . '_' . $withField];
+            }
 
             if ($originalModel) {
                 if (is_string($originalModel)) {
