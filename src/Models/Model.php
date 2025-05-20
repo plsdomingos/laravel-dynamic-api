@@ -1234,7 +1234,12 @@ class Model extends BaseModel
         array $termFilters,
         array $relationTermFilters,
     ) {
-        return $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $term) {
+        $like = 'like';
+        if (config('database.default') === 'pgsql') {
+            $like = 'ilike';
+        }
+
+        return $query->where(function ($q) use ($termFilters, $relationTermFilters, $modelClass, $term, $like) {
             $q->where('id', 'like', '%' . $term . '%');
             foreach ($termFilters as $termFilter) {
                 if (in_array($termFilter, $modelClass::TRANSLATED_FIELDS)) {
@@ -1245,11 +1250,11 @@ class Model extends BaseModel
             }
             foreach ($relationTermFilters as $relation => $relationTermFilter) {
                 foreach ($relationTermFilter as $termFilter) {
-                    $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $term) {
+                    $q->orWhereHas($relation, function ($qRelation) use ($relation, $termFilter, $term, $like) {
                         if (in_array($termFilter, $this->getModelClass($relation)::TRANSLATED_FIELDS)) {
                             $qRelation->whereTranslationLike($termFilter, '%' . $term . '%');
                         } else {
-                            $qRelation->where($termFilter, 'like', '%' . $term . '%');
+                            $qRelation->where($termFilter, $like, '%' . $term . '%');
                         }
                     });
                 }
