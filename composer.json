@@ -26,7 +26,8 @@
         "mtownsend/response-xml": "^2.3",
         "maatwebsite/excel": "^3.1",
         "illuminate/contracts": "^11.0",
-        "laravel/framework": "^11.35"
+        "laravel/framework": "^11.35",
+        "plsdomingos/laravel-translatable-ilike": "dev-main"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
