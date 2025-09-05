@@ -1134,7 +1134,7 @@ class Model extends BaseModel
                 return true;
             }
             foreach ($authUser->roles as $role) {
-                if (in_array($role['name'], $value)) {
+                if (in_array($role['role_name'], $value)) {
                     return true;
                 }
             }

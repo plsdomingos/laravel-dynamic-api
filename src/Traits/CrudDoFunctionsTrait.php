@@ -76,7 +76,7 @@ trait CrudDoFunctionsTrait
 
         $query = $query->with($with)->withCount($withCount);
 
-        if (in_array($this->sortBy, $modelClass::TRANSLATED_FIELDS)) {
+        if (in_array($this->sortBy, $modelClass::TRANSLATED_FIELDS) || in_array($this->sortBy, $modelClass::APPEND_FIELDS)) {
             $result = $query
                 ->get()
                 ->makeVisible($visibleHidden['makeVisible'])
