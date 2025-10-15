@@ -277,11 +277,9 @@ trait RouteServiceProviderTrait
                 if (!$abort) {
                     return null;
                 }
-                if ($userRequest) {
-                    $userRequest->update([
-                        'status' => 404,
-                    ]);
-                }
+                $userRequest->update([
+                    'status' => 404,
+                ]);
                 abort(404);
             }
         } catch (Exception $e) {
