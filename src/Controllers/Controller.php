@@ -229,8 +229,8 @@ class Controller extends BaseController
         $this->withCount = $request->with_count ?
             (is_array($request->with_count) ? $request->with_count : [$request->with_count]) : [];
         $this->term = $request->term ?? null;
-        $this->withTranslations = $request->withTranslations ?
-            $this->convertBooleans($request->withTranslations) : null;
+        $this->withTranslations = $request->with_translations ?
+            $this->convertBooleans($request->with_translations) : null;
         $this->ip = $request->ip();
         $this->headerAccept = $request->header('Accept');
         $this->locale = $request->has('locale') ?
