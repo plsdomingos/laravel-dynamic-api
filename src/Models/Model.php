@@ -496,7 +496,7 @@ class Model extends BaseModel
                 return array_diff(static::FIELDS, static::TRANSLATED_FIELDS);
             case Constants::OUTPUT_SIMPLIFIED:
             default:
-                return array_diff(static::SIMPLIFIED_FIELDS, static::TRANSLATED_FIELDS);
+                return array_diff(static::SIMPLIFIED_FIELDS, static::TRANSLATED_FIELDS, static::APPEND_FIELDS);
         }
     }
 
