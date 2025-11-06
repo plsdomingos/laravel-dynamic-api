@@ -128,7 +128,7 @@ trait CrudDoRelationFunctionsTrait
         if ($this->paginated === true) {
             $range = [$this->perPage * ($this->page - 1), $this->perPage * ($this->page)];
             $this->total = count($relationOutput);
-            $result = array_slice($relationOutput->toArray(), $range[0], $range[1] - $range[0]);
+            $result = $relationOutput->slice($range[0], $range[1])->toArray();
             $result = $this->returnPaginatedDetails('', $result, $this->total);
             return $result;
         }
