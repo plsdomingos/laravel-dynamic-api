@@ -190,7 +190,6 @@ trait EngineRequestFunctions
             }
         }
         if (config('laravel-dynamic-api.track_requests', true)) {
-
             $userRequest = Request::where('track_id', $request->request_user_track_code)->first();
             if ($userRequest) {
                 $userRequest->update([

@@ -122,7 +122,7 @@ trait RouteServiceProviderTrait
         }
 
         if (!$model) {
-            if ($userRequest) {
+            if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
                 $userRequest->update([
                     'status' => 404,
                 ]);
@@ -152,9 +152,11 @@ trait RouteServiceProviderTrait
         }
 
         if (!$relationModel) {
-            $userRequest->update([
-                'status' => 404,
-            ]);
+            if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
+                $userRequest->update([
+                    'status' => 404,
+                ]);
+            }
             abort(404);
         }
 
@@ -194,9 +196,11 @@ trait RouteServiceProviderTrait
                     if (!$abort) {
                         return null;
                     }
-                    $userRequest->update([
-                        'status' => 404,
-                    ]);
+                    if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
+                        $userRequest->update([
+                            'status' => 404,
+                        ]);
+                    }
                     abort(404);
                 }
             }
@@ -216,7 +220,7 @@ trait RouteServiceProviderTrait
                 if (!$abort) {
                     return null;
                 }
-                if ($userRequest) {
+                if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
                     $userRequest->update([
                         'status' => 404,
                     ]);
@@ -224,7 +228,7 @@ trait RouteServiceProviderTrait
                 abort(404);
             }
         } catch (Exception $e) {
-            if ($userRequest) {
+            if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
                 $userRequest->update([
                     'status' => 404,
                 ]);
@@ -258,9 +262,11 @@ trait RouteServiceProviderTrait
                     if (!$abort) {
                         return null;
                     }
-                    $userRequest->update([
-                        'status' => 404,
-                    ]);
+                    if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
+                        $userRequest->update([
+                            'status' => 404,
+                        ]);
+                    }
                     abort(404);
                 }
             }
@@ -277,15 +283,19 @@ trait RouteServiceProviderTrait
                 if (!$abort) {
                     return null;
                 }
-                $userRequest->update([
-                    'status' => 404,
-                ]);
+                if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
+                    $userRequest->update([
+                        'status' => 404,
+                    ]);
+                }
                 abort(404);
             }
         } catch (Exception $e) {
-            $userRequest->update([
-                'status' => 404,
-            ]);
+            if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
+                $userRequest->update([
+                    'status' => 404,
+                ]);
+            }
             abort(404);
         }
 
