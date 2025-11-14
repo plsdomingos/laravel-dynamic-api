@@ -475,8 +475,26 @@ trait EngineExecutionFunctions
      */
     private function getRelationVisibleAndHiddenExecution($model, string $relation, $relationOutput, $output): array
     {
+        $makeVisible = [];
+        if ($this->withTranslations === true) {
+            array_push($makeVisible, 'translations');
+        } else 
+        if ($this->withTranslations === false) {
+            // ignore   
+        } else {
+            switch ($output) {
+                case Constants::OUTPUT_COMPLETE:
+                case Constants::OUTPUT_EXTENSIVE:
+                    array_push($makeVisible, 'translations');
+                    break;
+                case Constants::OUTPUT_SIMPLIFIED:
+                default:
+                    array_push($makeHidden, 'translations');
+            }
+        }
+
         $relationModelClass = $this->getModelClass($relation);
-        $makeVisible = $model::getRelationVisibleFields($relation, $relationModelClass, $output);
+        $makeVisible = array_merge($makeVisible, $model::getRelationVisibleFields($relation, $relationModelClass, $output));
 
         return [
             'makeVisible' => $makeVisible,
