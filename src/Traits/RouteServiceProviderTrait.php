@@ -157,7 +157,7 @@ trait RouteServiceProviderTrait
                     'status' => 404,
                 ]);
             }
-            abort(404);
+            abort(404, 'Not found');
         }
 
         return $relationModel;
@@ -201,7 +201,7 @@ trait RouteServiceProviderTrait
                             'status' => 404,
                         ]);
                     }
-                    abort(404);
+                    abort(404, 'Not found');
                 }
             }
 
@@ -225,7 +225,7 @@ trait RouteServiceProviderTrait
                         'status' => 404,
                     ]);
                 }
-                abort(404);
+                abort(404, 'Not found');
             }
         } catch (Exception $e) {
             if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
@@ -233,7 +233,7 @@ trait RouteServiceProviderTrait
                     'status' => 404,
                 ]);
             }
-            abort(404);
+            abort(404, 'Not found');
         }
 
         return $model;
@@ -267,7 +267,7 @@ trait RouteServiceProviderTrait
                             'status' => 404,
                         ]);
                     }
-                    abort(404);
+                    abort(404, 'Not found');
                 }
             }
 
@@ -288,7 +288,7 @@ trait RouteServiceProviderTrait
                         'status' => 404,
                     ]);
                 }
-                abort(404);
+                abort(404, 'Not found');
             }
         } catch (Exception $e) {
             if (config('laravel-dynamic-api.track_requests', true) && $userRequest) {
@@ -296,7 +296,7 @@ trait RouteServiceProviderTrait
                     'status' => 404,
                 ]);
             }
-            abort(404);
+            abort(404, 'Not found');
         }
 
         return $relationModel;

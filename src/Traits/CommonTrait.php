@@ -87,7 +87,7 @@ trait CommonTrait
 
         if ($response->isNotFound() && $abort === true) {
             // Return abort
-            abort(404);
+            abort(404, 'Not found');
         };
 
         return $response;
