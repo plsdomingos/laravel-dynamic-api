@@ -352,7 +352,7 @@ trait CrudDoFunctionsTrait
         }
 
         // Delete cache
-        $this->deleteCacheCache($this->modelClass, $this->type, $request);
+        $this->deleteCache($this->modelClass, $this->type, $request);
         return $response;
     }
 
@@ -371,7 +371,7 @@ trait CrudDoFunctionsTrait
         $model->delete();
 
         // Delete cache
-        $this->deleteCacheCache($this->modelClass, $this->type, $request);
+        $this->deleteCache($this->modelClass, $this->type, $request);
         return $model;
     }
 
