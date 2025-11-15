@@ -26,11 +26,16 @@ trait EngineCacheFunctions
      * Get relation cache, if does not exists return null.
      * 
      * @param string $modelClass The model class
+     * @param string $relationClass The relation class
      * @param string $type The type
      * @param mixed $request The request
      */
-    protected function getRelationCache(string $modelClass, string $relationClass, string $type, mixed $request): mixed
-    {
+    protected function getRelationCache(
+        string $modelClass,
+        string $relationClass,
+        string $type,
+        mixed $request
+    ): mixed {
         if ($relationClass::checkCacheFlag($type)) {
             return Cache::get($this->createCacheKey(
                 $modelClass . '-' . $relationClass,
@@ -69,6 +74,7 @@ trait EngineCacheFunctions
      * Cache and get relation
      * 
      * @param string $modelClass The model class
+     * @param string $relationClass The relation class
      * @param string $type The type
      * @param mixed $request The request
      * @param mixed $obj The object to save
@@ -105,6 +111,27 @@ trait EngineCacheFunctions
         if ($modelClass::checkCacheFlag($type)) {
             Cache::forget(
                 $this->createCacheKey($modelClass, $type, $request)
+            );
+        }
+    }
+
+    /**
+     * Delete relation cache
+     * 
+     * @param string $modelClass The model class
+     * @param string $relationClass The relation class
+     * @param string $type The type
+     * @param mixed $request The request
+     */
+    protected function deleteRelationCache(
+        string $modelClass,
+        string $relationClass,
+        string $type,
+        mixed $request
+    ): void {
+        if ($modelClass::checkCacheFlag($type)) {
+            Cache::forget(
+                $this->createCacheKey($modelClass . '-' . $relationClass, $type, $request)
             );
         }
     }
