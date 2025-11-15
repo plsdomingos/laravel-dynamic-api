@@ -47,6 +47,12 @@ trait CrudDoRelationFunctionsTrait
         array $data,
         string | null $relationClass
     ): object {
+        // Check if the request is cached
+        $cachedValue = $this->getRelationCache($this->modelClass, $this->relationClass, $this->type, $request);
+        if ($cachedValue !== null) {
+            return $cachedValue;
+        }
+
         $relationOutput = $this->relationOutput;
         $relationName = $this->relationName;
 
@@ -66,7 +72,11 @@ trait CrudDoRelationFunctionsTrait
                 $relationOutput[0],
                 $output
             );
-            return $relationOutput->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
+
+            // Save the output in the cache
+            $result = $relationOutput->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
+            $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $result);
+            return $result;
         }
 
         if (!$relationOutput->isEmpty()) {
@@ -111,7 +121,10 @@ trait CrudDoRelationFunctionsTrait
         }
 
         if ($onlyOne) {
-            return $relationOutput->first();
+            // Save the output in the cache
+            $result = $relationOutput->first();
+            $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $result);
+            return $result;
         }
         // Sort the relation
         if ($this->sortOrder === 'asc' || $this->sortOrder === 'ASC') {
@@ -130,9 +143,14 @@ trait CrudDoRelationFunctionsTrait
             $this->total = count($relationOutput);
             $result = $relationOutput->slice($range[0], $range[1])->toArray();
             $result = $this->returnPaginatedDetails('', $result, $this->total);
+
+            // Save the output in the cache
+            $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $result);
             return $result;
         }
 
+        // Save the output in the cache
+        $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $relationOutput);
         return $relationOutput;
     }
 
@@ -151,6 +169,12 @@ trait CrudDoRelationFunctionsTrait
      */
     protected function doRelationShow(object $model, GenericShowRequest $request, array $data, string $relation, object $relationModel): object
     {
+        // Check if the request is cached
+        $cachedValue = $this->getRelationCache($this->modelClass, $this->relationClass, $this->type, $request);
+        if ($cachedValue !== null) {
+            return $cachedValue;
+        }
+
         if ($relationModel) {
             $visibleHidden = $this->getRelationVisibleAndHiddenExecution(
                 $model,
@@ -167,6 +191,8 @@ trait CrudDoRelationFunctionsTrait
                 }
             }
         }
+        // Save the output in the cache
+        $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $relationModel);
         return $relationModel;
     }
 

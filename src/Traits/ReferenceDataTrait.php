@@ -15,6 +15,8 @@ trait ReferenceDataTrait
 {
     use EngineModelFunction;
 
+    private $prefix = 'REFERENCE_DATA_';
+
     /**
      * Cache forever all reference data that are mention in laravel-dynamic-api.php
      */
@@ -66,7 +68,7 @@ trait ReferenceDataTrait
     protected function cacheAndGetReferenceData(string $modelName, string $modelClass): mixed
     {
         return Cache::rememberForever(
-            $modelName,
+            $this->prefix . $modelName,
             function () use ($modelClass) {
                 // Get all reference data and titles just once.
                 return json_decode(json_encode($modelClass::all()));
@@ -82,7 +84,7 @@ trait ReferenceDataTrait
      */
     protected function refreshReferenceData(string $modelName, string $modelClass): mixed
     {
-        Cache::forget($modelName);
+        Cache::forget($this->prefix . $modelName);
         return $this->cacheAndGetReferenceData($modelName, $modelClass);
     }
 

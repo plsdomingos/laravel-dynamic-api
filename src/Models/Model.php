@@ -27,6 +27,9 @@ class Model extends BaseModel
     // If defined in laravel-dynamic-api.php, this const will be ignored throughout the code.
     const HIDDEN_BY_DEFAULT = true;
 
+    // Check if the model is to use cache or not
+    const USE_CACHE = null;
+
     /**
      * The output is hidden by default, constant HIDDEN_BY_DEFAULT. If false the constant VISIBLE_FIELDS is ignored.
      * When the HIDDEN_BY_DEFAULT is true, the visible fields can be configured in this variable.
@@ -1268,5 +1271,35 @@ class Model extends BaseModel
     public static function getExcelHeaders()
     {
         return static::EXCEL_EXPORT_HEADER;
+    }
+
+    /**
+     * Check model cache flag
+     */
+    protected function checkCacheFlag(string $type): bool | null
+    {
+        if (static::USE_CACHE !== null) {
+            return static::USE_CACHE;
+        }
+
+        $cacheTypes = config('laravel-dynamic-api.cache_types', ['*']);
+        if (in_array($type, $cacheTypes)) {
+            return true;
+        }
+
+        // By default only save cache in index, show, relationIndex and relationShow
+        if (in_array('*', $cacheTypes)) {
+            switch ($type) {
+                case 'index':
+                case 'show':
+                case 'relationIndex':
+                case 'relationShow':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        return false;
     }
 }

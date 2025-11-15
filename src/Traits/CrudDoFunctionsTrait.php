@@ -2,6 +2,7 @@
 
 namespace LaravelDynamicApi\Traits;
 
+use App\Traits\EngineCacheFunctions;
 use LaravelDynamicApi\Common\Constants;
 use LaravelDynamicApi\Requests\GenericIndexRequest;
 use LaravelDynamicApi\Requests\GenericShowRequest;
@@ -22,7 +23,10 @@ use Illuminate\Pagination\Paginator;
  */
 trait CrudDoFunctionsTrait
 {
-    use CommonTrait, EngineExecutionFunctions;
+    use CommonTrait,
+        EngineExecutionFunctions,
+        ReferenceDataTrait,
+        EngineCacheFunctions;
 
     /**
      * Public function to execute `index`.
@@ -41,6 +45,12 @@ trait CrudDoFunctionsTrait
      */
     public function doIndex(string $modelClass, GenericIndexRequest $request, array $data): object
     {
+        // Check if the request is cached
+        $cachedValue = $this->getCache($modelClass, $this->type, $request);
+        if ($cachedValue !== null) {
+            return $cachedValue;
+        }
+
         $query = $modelClass::query();
 
         $query = $this->requestFilter(
@@ -190,6 +200,8 @@ trait CrudDoFunctionsTrait
             }
         }
 
+        // Save the output in the cache
+        $this->saveCache($modelClass, $this->type, $request, $result);
         return $result;
     }
 
@@ -207,6 +219,12 @@ trait CrudDoFunctionsTrait
      */
     public function doShow($model, GenericShowRequest $request, array $data): object
     {
+        // Check if the request is cached
+        $cachedValue = $this->getCache($this->modelClass, $this->type, $request);
+        if ($cachedValue !== null) {
+            return $cachedValue;
+        }
+
         $visibleHidden = $this->getVisibleAndHidden(
             $model,
             $data['output'] ?? Constants::OUTPUT_COMPLETE,
@@ -255,6 +273,8 @@ trait CrudDoFunctionsTrait
             }
         }
 
+        // Save the output in the cahce
+        $this->saveCache($this->modelClass, $this->type, $request, $response);
         return $response;
     }
 
@@ -331,6 +351,8 @@ trait CrudDoFunctionsTrait
             }
         }
 
+        // Delete cache
+        $this->deleteCacheCache($this->modelClass, $this->type, $request);
         return $response;
     }
 
@@ -347,6 +369,9 @@ trait CrudDoFunctionsTrait
     public function doDestroy($model, Request $request, array $data): object
     {
         $model->delete();
+
+        // Delete cache
+        $this->deleteCacheCache($this->modelClass, $this->type, $request);
         return $model;
     }
 

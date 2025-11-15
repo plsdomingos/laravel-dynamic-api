@@ -476,6 +476,7 @@ trait EngineExecutionFunctions
     private function getRelationVisibleAndHiddenExecution($model, string $relation, $relationOutput, $output): array
     {
         $makeVisible = [];
+        $makeHidden = [];
         if ($this->withTranslations === true) {
             array_push($makeVisible, 'translations');
         } else 
@@ -498,7 +499,7 @@ trait EngineExecutionFunctions
 
         return [
             'makeVisible' => $makeVisible,
-            'makeHidden' => $relationModelClass::getRelationHiddenFields($relation, $relationModelClass, $output, $makeVisible)
+            'makeHidden' => array_merge($makeHidden, $relationModelClass::getRelationHiddenFields($relation, $relationModelClass, $output, $makeVisible))
         ];
     }
 }

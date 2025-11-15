@@ -76,11 +76,11 @@ trait EngineModelFunction
                     $modelName = app()->make($modelClass)->getTable();
                 }
             }
-            return $modelClass;
+            return $modelName;
         } catch (Exception $e) {
             throw new ModelNotFoundException(
                 __NAMESPACE__ . __CLASS__ . '.' . __FUNCTION__ .  ' [' . __LINE__ . '] ' .
-                    'Not found model class ' . $modelName . '. '
+                    'Not found model class ' . $modelClass . '. '
             );
         }
     }
