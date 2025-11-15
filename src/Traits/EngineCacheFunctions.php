@@ -129,7 +129,7 @@ trait EngineCacheFunctions
         string $type,
         mixed $request
     ): void {
-        if ($modelClass::checkCacheFlag($type)) {
+        if ($relationClass::checkCacheFlag($type)) {
             Cache::forget(
                 $this->createCacheKey($modelClass . '-' . $relationClass, $type, $request)
             );
