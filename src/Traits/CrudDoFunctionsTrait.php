@@ -45,7 +45,7 @@ trait CrudDoFunctionsTrait
     public function doIndex(string $modelClass, GenericIndexRequest $request, array $data): object
     {
         // Check if the request is cached
-        $cachedValue = $this->getCache($modelClass, $this->type, $request);
+        $cachedValue = $this->getCache($modelClass, $this->type, $this->request);
         if ($cachedValue !== null) {
             return $cachedValue;
         }
@@ -219,7 +219,7 @@ trait CrudDoFunctionsTrait
     public function doShow($model, GenericShowRequest $request, array $data): object
     {
         // Check if the request is cached
-        $cachedValue = $this->getCache($this->modelClass, $this->type, $request);
+        $cachedValue = $this->getCache($this->modelClass, $this->type, $this->request);
         if ($cachedValue !== null) {
             return $cachedValue;
         }
