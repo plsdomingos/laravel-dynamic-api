@@ -2,7 +2,6 @@
 
 namespace LaravelDynamicApi\Traits;
 
-use App\Traits\EngineCacheFunctions;
 use LaravelDynamicApi\Common\Constants;
 use LaravelDynamicApi\Requests\GenericIndexRequest;
 use LaravelDynamicApi\Requests\GenericShowRequest;

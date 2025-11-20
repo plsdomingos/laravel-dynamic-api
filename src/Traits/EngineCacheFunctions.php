@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace LaravelDynamicApi\Traits;
 
 use Illuminate\Support\Facades\Cache;
 
