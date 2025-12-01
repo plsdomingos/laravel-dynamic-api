@@ -57,15 +57,15 @@ trait EngineValidationFunctions
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function validateExecution(
-        string $type = null,
-        Request $request = null,
-        string $modelClass = null,
-        string $modelName = null,
-        object $model = null,
-        string | null $relationClass = null,
-        string | null $relationName = null,
-        object | null $relationModel = null,
-        string $locale = null,
+        ?string $type = null,
+        ?Request $request = null,
+        ?string $modelClass = null,
+        ?string $modelName = null,
+        ?object $model = null,
+        ?string $relationClass = null,
+        ?string $relationName = null,
+        ?object $relationModel = null,
+        ?string $locale = null,
     ): void {
         // set values
         $type = $type ?? $this->type;

@@ -181,19 +181,19 @@ class ControllerExecution extends Controller
      * 
      */
     protected function executeBeforeFunctions(
-        string | null $type = null,
-        Request | null $request = null,
-        array | null $data = null,
-        string | null $modelClass = null,
-        string | null $modelName = null,
-        object | null $model = null,
-        string | null $relationClass = null,
-        string | null $relationName = null,
-        object | null $relationModel = null,
-        string | null $relationOfRelationClass = null,
-        string | null $relationOfRelationName = null,
-        object | null $relationOfRelationModel = null,
-        string $locale = null,
+        ?string $type = null,
+        ?Request $request = null,
+        ?array $data = null,
+        ?string $modelClass = null,
+        ?string $modelName = null,
+        ?object $model = null,
+        ?string $relationClass = null,
+        ?string $relationName = null,
+        ?object $relationModel = null,
+        ?string $relationOfRelationClass = null,
+        ?string $relationOfRelationName = null,
+        ?object $relationOfRelationModel = null,
+        ?string $locale = null,
     ): void {
         // set values
         $type = $type ?? $this->type;
@@ -361,19 +361,19 @@ class ControllerExecution extends Controller
      * @return mixed The output to return.
      */
     protected function executeAfterFunctions(
-        string | null $type = null,
-        Request | null $request = null,
-        array | null $data = null,
-        string | null $modelClass = null,
-        string | null $modelName = null,
-        object | null $model = null,
-        string | null $relationClass = null,
-        string | null $relationName = null,
-        object | null $relationModel = null,
-        string | null $relationOfRelationClass = null,
-        string | null $relationOfRelationName = null,
-        object | null $relationOfRelationModel = null,
-        string $locale = null,
+        ?string $type = null,
+        ?Request $request = null,
+        ?array $data = null,
+        ?string $modelClass = null,
+        ?string $modelName = null,
+        ?object $model = null,
+        ?string $relationClass = null,
+        ?string $relationName = null,
+        ?object $relationModel = null,
+        ?string $relationOfRelationClass = null,
+        ?string $relationOfRelationName = null,
+        ?object $relationOfRelationModel = null,
+        ?string $locale = null,
     ): void {
         // set values
         $type = $type ?? $this->type;
@@ -529,10 +529,10 @@ class ControllerExecution extends Controller
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function doValidation(
-        string $type = null,
-        Request $request = null,
-        bool $isRelation = null,
-        bool $modelRulesMandatory = null
+        ?string $type = null,
+        ?Request $request = null,
+        ?bool $isRelation = null,
+        ?bool $modelRulesMandatory = null
     ): array {
         // Set fields.
         $type = $type ?? $this->type;
@@ -602,7 +602,7 @@ class ControllerExecution extends Controller
         array $fields,
         string $modelName,
         array $rules,
-        string $mainKey = null
+        ?string $mainKey = null
     ): array {
         $requestFields = [];
         foreach ($fields as $key => $field) {
@@ -669,18 +669,18 @@ class ControllerExecution extends Controller
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function getRules(
-        string $type = null,
-        Request $request = null,
-        bool $isRelation = null,
-        string $modelClass = null,
-        string $modelName = null,
-        object $model = null,
-        string | null $relationClass = null,
-        string | null $relationName = null,
-        object | null $relationModel = null,
-        string $locale = null,
-        string $modelTable = null,
-        string $modelTranslationTable = null,
+        ?string $type = null,
+        ?Request $request = null,
+        ?bool $isRelation = null,
+        ?string $modelClass = null,
+        ?string $modelName = null,
+        ?object $model = null,
+        ?string $relationClass = null,
+        ?string $relationName = null,
+        ?object $relationModel = null,
+        ?string $locale = null,
+        ?string $modelTable = null,
+        ?string $modelTranslationTable = null,
     ): array | null {
         // Set fields
         $type = $type ?? $this->type;
@@ -779,8 +779,8 @@ class ControllerExecution extends Controller
      */
     protected function generateSpecificRules(
         array $rule,
-        string $type = null,
-        Request $request = null,
+        ?string $type = null,
+        ?Request $request = null,
     ): array {
         // Set fields
         $type = $type ?? $this->type;
@@ -808,17 +808,17 @@ class ControllerExecution extends Controller
      * @author Pedro Domingos <pedro@panttera.com>
      */
     protected function doExecute(
-        string $type = null,
-        Request $request = null,
-        array $data = null,
-        string $modelName = null,
-        string $modelClass = null,
-        object $model = null,
-        string $relationName = null,
-        string $relationClass = null,
-        string $function = null,
-        string $relationModel = null,
-        string $relationOfRelationClass = null
+        ?string $type = null,
+        ?Request $request = null,
+        ?array $data = null,
+        ?string $modelName = null,
+        ?string $modelClass = null,
+        ?object $model = null,
+        ?string $relationName = null,
+        ?string $relationClass = null,
+        ?string $function = null,
+        ?string $relationModel = null,
+        ?string $relationOfRelationClass = null
     ): object {
         // Set fields
         $type = $type ?? $this->type;

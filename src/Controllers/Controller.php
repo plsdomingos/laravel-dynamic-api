@@ -246,7 +246,7 @@ class Controller extends BaseController
         $this->validateHeader();
     }
 
-    protected function setOutput(Request $request = null, string $type = null): void
+    protected function setOutput(?Request $request = null, ?string $type = null): void
     {
         if ($type === null) {
             $type = $this->type;
@@ -285,7 +285,7 @@ class Controller extends BaseController
      * 
      * @return void
      */
-    protected function setAuthUser(Request $request = null): void
+    protected function setAuthUser(?Request $request = null): void
     {
         $request = $request ?? $this->request;
         // Get auth user from passport
@@ -324,7 +324,7 @@ class Controller extends BaseController
      * 
      * @return bool If false means the model class doesn't exist.
      */
-    protected function setModelClass(string $modelName = null): void
+    protected function setModelClass(?string $modelName = null): void
     {
         $modelName = $modelName ?? $this->modelName;
 
@@ -377,7 +377,7 @@ class Controller extends BaseController
      * 
      * @param string $relationClass Model class.
      */
-    protected function setRelationClass(string $relationName = null): void
+    protected function setRelationClass(?string $relationName = null): void
     {
         $relationName = $relationName ?? $this->relationName;
         $this->relationClass = $this->getModelClass($relationName);
@@ -387,7 +387,7 @@ class Controller extends BaseController
      * 
      * @param string $relationOfRelationName Model class.
      */
-    protected function setRelationOfRelationClass(string $relationOfRelationName = null): void
+    protected function setRelationOfRelationClass(?string $relationOfRelationName = null): void
     {
         $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
         $this->relationOfRelationClass = $this->getModelClass($relationOfRelationName);
@@ -400,12 +400,12 @@ class Controller extends BaseController
      * @return bool If false means the model class doesn't exist.
      */
     protected function setSpecificModel(
-        string $modelClass = null,
-        string $modelId = null,
-        string $locale = null,
-        string $output = null,
-        string $withCount = null,
-        string $with = null,
+        ?string $modelClass = null,
+        ?string $modelId = null,
+        ?string $locale = null,
+        ?string $output = null,
+        ?string $withCount = null,
+        ?string $with = null,
     ): void {
         $modelClass = $modelClass ?? $this->modelClass;
         $modelId = $modelId ?? $this->modelId;
@@ -455,9 +455,9 @@ class Controller extends BaseController
     }
 
     protected function setRelationModel(
-        string $relationName = null,
-        string $relationModelId = null,
-        string $locale = null,
+        ?string $relationName = null,
+        ?string $relationModelId = null,
+        ?string $locale = null,
     ): void {
         $relationName = $relationName ?? $this->relationName;
         $relationModelId = $relationModelId ?? $this->relationModelId;
@@ -488,9 +488,9 @@ class Controller extends BaseController
     }
 
     protected function  setRelationOfRelationModel(
-        string $relationOfRelationName = null,
-        string $relationOfRelationModelId = null,
-        string $locale = null,
+        ?string $relationOfRelationName = null,
+        ?string $relationOfRelationModelId = null,
+        ?string $locale = null,
     ): void {
         $relationOfRelationName = $relationOfRelationName ?? $this->relationOfRelationName;
         $relationOfRelationModelId = $relationOfRelationModelId ?? $this->relationOfRelationModelId;
