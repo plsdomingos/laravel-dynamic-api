@@ -20,7 +20,7 @@ trait EngineModelFunction
      * 
      * @return string
      */
-    protected function getModelClass(string $modelName = null): string
+    protected function getModelClass(?string $modelName = null): string
     {
         $modelName = $modelName ?? $this->modelName;
         $modelName = Str::plural($modelName);
@@ -61,7 +61,7 @@ trait EngineModelFunction
      * 
      * @return string
      */
-    protected function getModelName(string $modelClass = null): string
+    protected function getModelName(?string $modelClass = null): string
     {
         $modelClass = $modelClass ?? $this->modelClass;
 

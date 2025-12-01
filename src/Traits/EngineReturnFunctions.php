@@ -262,7 +262,7 @@ trait EngineReturnFunctions
      * @param string type The type of resource you're checking.
      * @param resources The array of resources that you want to check against.
      */
-    protected function returnType(string $type = null): string
+    protected function returnType(?string $type = null): string
     {
         if ($type === null) {
             $type = $this->type;
@@ -347,7 +347,7 @@ trait EngineReturnFunctions
         array $requestOutput = [],
         array $makeVisible = [],
         array $makeHidden = [],
-        bool $translations = null,
+        ?bool $translations = null,
         array $showOnly = [],
         array $with = [],
         array $withCount = [],
