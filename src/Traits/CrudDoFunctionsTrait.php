@@ -200,7 +200,7 @@ trait CrudDoFunctionsTrait
         }
 
         // Save the output in the cache
-        $this->saveCache($modelClass, $this->type, $request, $result);
+        $this->saveCache($modelClass, $this->type, $this->request, $result);
         return $result;
     }
 
@@ -219,7 +219,7 @@ trait CrudDoFunctionsTrait
     public function doShow($model, GenericShowRequest $request, array $data): object
     {
         // Check if the request is cached
-        $cachedValue = $this->getCache($this->modelClass, $this->type, $this->request);
+        $cachedValue = $this->getCache($this->modelClass, $this->type, $this->request, $model->id);
         if ($cachedValue !== null) {
             return $cachedValue;
         }
@@ -273,7 +273,7 @@ trait CrudDoFunctionsTrait
         }
 
         // Save the output in the cahce
-        $this->saveCache($this->modelClass, $this->type, $request, $response);
+        $this->saveCache($this->modelClass, $this->type, $this->request, $response, $model->id);
         return $response;
     }
 
@@ -351,7 +351,7 @@ trait CrudDoFunctionsTrait
         }
 
         // Delete cache
-        $this->deleteCache($this->modelClass, $this->type, $request);
+        $this->deleteCache($this->modelClass, $this->type, $this->request, $model->id);
         return $response;
     }
 
@@ -370,7 +370,7 @@ trait CrudDoFunctionsTrait
         $model->delete();
 
         // Delete cache
-        $this->deleteCache($this->modelClass, $this->type, $request);
+        $this->deleteCache($this->modelClass, $this->type, $request, $model->id);
         return $model;
     }
 
@@ -402,6 +402,11 @@ trait CrudDoFunctionsTrait
                 ->makeVisible($visibleHidden['makeVisible'])
                 ->makeHidden($visibleHidden['makeHidden']));
         }
+
+        // Delete cache
+        foreach ($deletedModels as $deletedModel) {
+            $this->deleteCache($this->modelClass, $this->type, $request, $deletedModel->id);
+        }
         return $deletedModels;
     }
 
@@ -430,6 +435,10 @@ trait CrudDoFunctionsTrait
             $upatedMmodels->push($model->fresh()
                 ->makeVisible($visibleHidden['makeVisible'])
                 ->makeHidden($visibleHidden['makeHidden']));
+        }
+
+        foreach ($upatedMmodels as $upatedMmodel) {
+            $this->deleteCache($this->modelClass, $this->type, $request, $upatedMmodel->id);
         }
         return $upatedMmodels;
     }

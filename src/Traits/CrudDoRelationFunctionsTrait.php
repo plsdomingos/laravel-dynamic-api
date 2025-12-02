@@ -48,7 +48,13 @@ trait CrudDoRelationFunctionsTrait
         string | null $relationClass
     ): object {
         // Check if the request is cached
-        $cachedValue = $this->getRelationCache($this->modelClass, $this->relationClass, $this->type, $request);
+        $cachedValue = $this->getRelationCache(
+            $this->modelClass,
+            $this->relationClass,
+            $this->type,
+            $request,
+            $model->id,
+        );
         if ($cachedValue !== null) {
             return $cachedValue;
         }
@@ -75,7 +81,14 @@ trait CrudDoRelationFunctionsTrait
 
             // Save the output in the cache
             $result = $relationOutput->makeVisible($visibleHidden['makeVisible'])->makeHidden($visibleHidden['makeHidden']);
-            $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $result);
+            $this->saveRelationCache(
+                $this->modelClass,
+                $this->relationClass,
+                $this->type,
+                $request,
+                $result,
+                $model->id,
+            );
             return $result;
         }
 
@@ -170,7 +183,14 @@ trait CrudDoRelationFunctionsTrait
     protected function doRelationShow(object $model, GenericShowRequest $request, array $data, string $relation, object $relationModel): object
     {
         // Check if the request is cached
-        $cachedValue = $this->getRelationCache($this->modelClass, $this->relationClass, $this->type, $request);
+        $cachedValue = $this->getRelationCache(
+            $this->modelClass,
+            $this->relationClass,
+            $this->type,
+            $this->request,
+            $model->id,
+            $relationModel ? $relationModel->id : null
+        );
         if ($cachedValue !== null) {
             return $cachedValue;
         }
@@ -192,7 +212,15 @@ trait CrudDoRelationFunctionsTrait
             }
         }
         // Save the output in the cache
-        $this->saveRelationCache($this->modelClass, $this->relationClass, $this->type, $request, $relationModel);
+        $this->saveRelationCache(
+            $this->modelClass,
+            $this->relationClass,
+            $this->type,
+            $this->request,
+            $relationModel,
+            $model->id,
+            $relationModel ? $relationModel->id : null
+        );
         return $relationModel;
     }
 
