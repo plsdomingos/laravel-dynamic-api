@@ -3,6 +3,7 @@
 namespace LaravelDynamicApi\Traits;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 trait EngineCacheFunctions
 {
@@ -13,10 +14,13 @@ trait EngineCacheFunctions
      * @param string $type The type
      * @param mixed $request The request
      */
-    protected function getCache(string $modelClass, string $type, mixed $request): mixed
+    protected function getCache(string $modelClass, string $type, mixed $request, ?int $modelId = null): mixed
     {
         if ($modelClass::checkCacheFlag($type)) {
-            return Cache::get($this->createCacheKey($modelClass, $type, $request));
+            $cahedValue = Cache::get($this->createCacheKey($modelClass, $type, $request));
+            $cahedValue = is_string($cahedValue) ? json_decode($cahedValue, true) : $cahedValue;
+
+            return is_array($cahedValue) ? collect($cahedValue) : $cahedValue;
         }
 
         return null;
@@ -34,13 +38,18 @@ trait EngineCacheFunctions
         string $modelClass,
         string $relationClass,
         string $type,
-        mixed $request
+        mixed $request,
+        int $modelId,
+        ?int $relationId = null
     ): mixed {
         if ($relationClass::checkCacheFlag($type)) {
-            return Cache::get($this->createCacheKey(
-                $modelClass . '-' . $relationClass,
+            return Cache::get($this->createRelationCacheKey(
+                $modelClass,
+                $relationClass,
                 $type,
-                $request
+                $request,
+                $modelId,
+                $relationId
             ));
         }
 
@@ -54,12 +63,26 @@ trait EngineCacheFunctions
      * @param string $type The type
      * @param mixed $request The request
      * @param mixed $obj The object to save
+     * 
      */
-    protected function saveCache(string $modelClass, string $type, mixed $request, mixed $obj): mixed
-    {
+    protected function saveCache(
+        string $modelClass,
+        string $type,
+        mixed $request,
+        mixed $obj,
+        ?int $modelId = null
+    ): mixed {
+        $cacheKey = $this->createCacheKey($modelClass, $type, $request, $modelId);
+
+        file_put_contents(
+            storage_path('framework/cache/data/keys.txt'),
+            $cacheKey . PHP_EOL,
+            FILE_APPEND
+        );
+
         if ($modelClass::checkCacheFlag($type)) {
             return Cache::remember(
-                $this->createCacheKey($modelClass, $type, $request),
+                $cacheKey,
                 config('laravel-dynamic-api.generic_cache_time', 86400),
                 function () use ($obj) {
                     return $obj;
@@ -84,11 +107,28 @@ trait EngineCacheFunctions
         string $relationClass,
         string $type,
         mixed $request,
-        mixed $obj
+        mixed $obj,
+        int $modelId,
+        ?int $relationId = null
     ): mixed {
+        $cacheKey = $this->createRelationCacheKey(
+            $modelClass,
+            $relationClass,
+            $type,
+            $request,
+            $modelId,
+            $relationId
+        );
+
+        file_put_contents(
+            storage_path('framework/cache/data/keys.txt'),
+            $cacheKey . PHP_EOL,
+            FILE_APPEND
+        );
+
         if ($relationClass::checkCacheFlag($type)) {
             return Cache::remember(
-                $this->createCacheKey($modelClass . '-' . $relationClass, $type, $request),
+                $cacheKey,
                 30,
                 function () use ($obj) {
                     return $obj;
@@ -106,12 +146,37 @@ trait EngineCacheFunctions
      * @param string $type The type
      * @param mixed $request The request
      */
-    protected function deleteCache(string $modelClass, string $type, mixed $request): void
-    {
+    protected function deleteCache(
+        string $modelClass,
+        string $type,
+        mixed $request,
+        ?int $modelId = null
+    ): void {
         if ($modelClass::checkCacheFlag($type)) {
-            Cache::forget(
-                $this->createCacheKey($modelClass, $type, $request)
-            );
+            $keysFilePath = storage_path('framework/cache/data/keys.txt');
+            $keysToDelete = [];
+            if (file_exists($keysFilePath)) {
+                foreach (file($keysFilePath) as $line) {
+                    if ($modelId == null) {
+                        if (Str::contains($line, $modelClass)) {
+                            $keysToDelete[] = trim($line);
+                        }
+                    } else {
+                        if (
+                            Str::contains($line, $modelClass . '::index') ||
+                            Str::contains($line, $modelClass . '::' .  $modelId)
+                        ) {
+                            $keysToDelete[] = trim($line);
+                        }
+                    }
+                }
+            }
+            foreach ($keysToDelete as $key) {
+                $contents = file_get_contents($keysFilePath);
+                $contents = str_replace($key, '', $contents);
+                file_put_contents($keysFilePath, $contents);
+                Cache::forget($key);
+            }
         }
     }
 
@@ -127,12 +192,35 @@ trait EngineCacheFunctions
         string $modelClass,
         string $relationClass,
         string $type,
-        mixed $request
+        mixed $request,
+        int $modelId,
+        ?int $relationlId = null
     ): void {
         if ($relationClass::checkCacheFlag($type)) {
-            Cache::forget(
-                $this->createCacheKey($modelClass . '-' . $relationClass, $type, $request)
-            );
+            $keysFilePath = storage_path('framework/cache/data/keys.txt');
+            $keysToDelete = [];
+            if (file_exists($keysFilePath)) {
+                foreach (file($keysFilePath) as $line) {
+                    if ($relationlId == null) {
+                        if (Str::contains($line, $relationClass)) {
+                            $keysToDelete[] = trim($line);
+                        }
+                    } else {
+                        if (
+                            Str::contains($line, $relationClass . '::index') ||
+                            Str::contains($line, $relationClass . '::' .  $relationlId)
+                        ) {
+                            $keysToDelete[] = trim($line);
+                        }
+                    }
+                }
+            }
+            foreach ($keysToDelete as $key) {
+                $contents = file_get_contents($keysFilePath);
+                $contents = str_replace($key, '', $contents);
+                file_put_contents($keysFilePath, $contents);
+                Cache::forget($key);
+            }
         }
     }
 
@@ -144,9 +232,45 @@ trait EngineCacheFunctions
      * @param mixed $request The request
      * 
      */
-    private function createCacheKey(string $modelClass, string $type, mixed $request): string
+    private function createCacheKey(string $modelClass, string $type, mixed $request, ?int $modelId = null): string
     {
-        return  $type . '::' . $modelClass . '::' .
+        $keyPrefix = $modelClass . '::';
+
+        if ($modelId) {
+            $keyPrefix .= $modelId . '::';
+        }
+
+        return  $keyPrefix . $type . '::' .
+            sha1(json_encode([
+                'path'   => $request->path(),
+                'query'  => collect($request->query())->sortKeys()->toArray(),
+                'body'   => $request->isMethod('post') ? $request->all() : null,
+            ]));
+    }
+
+    /**
+     * Create unique cache key
+     * 
+     * @param string $modelClass The model class
+     * @param string $type The type
+     * @param mixed $request The request
+     * 
+     */
+    private function createRelationCacheKey(
+        string $modelClass,
+        string $relationClass,
+        string $type,
+        mixed $request,
+        int $modelId,
+        ?int $relationId = null
+    ): string {
+        $keyPrefix = $modelClass . '::' .  $modelId . '::' . $relationClass . '::';
+
+        if ($relationId) {
+            $keyPrefix .= $relationId . '::';
+        }
+
+        return  $keyPrefix . $type . '::' .
             sha1(json_encode([
                 'path'   => $request->path(),
                 'query'  => collect($request->query())->sortKeys()->toArray(),

@@ -4,6 +4,7 @@ namespace LaravelDynamicApi\Traits;
 
 use Carbon\Carbon;
 use LaravelDynamicApi\Models\FailedRequest;
+use LaravelDynamicApi\Models\Model;
 use LaravelDynamicApi\Models\Request;
 use LaravelDynamicApi\Models\UserOnline;
 use Exception;
@@ -36,7 +37,7 @@ trait EngineRequestFunctions
                 'path' => $request->path(),
                 'schema' => $request->schemeAndHttpHost(),
                 'query' => $request->query(),
-                'headers' => $request->header(),
+                'headers' => $request->headers->all(),
                 'request' => $request->all(),
                 'ip' => $request->ip(),
             ];
@@ -100,29 +101,10 @@ trait EngineRequestFunctions
 
             // Open issue in github
             $this->openGithubIssue($userRequest);
-            $model = null;
-            try {
-                $model = collect($this->model);
-            } catch (Exception $e) {
-                // Ignore. The problem it could be getting the model.
-                $model = null;
-            }
-
-            $returnObject = null;
-            try {
-                $returnObject = collect($this->returnObject);
-            } catch (Exception $e) {
-                // Ignore. The problem it could be getting the returnObject.
-                $returnObject = null;
-            }
-
-            $relationOutput = null;
-            try {
-                $relationOutput = collect($this->relationOutput);
-            } catch (Exception $e) {
-                // Ignore. The problem it could be getting the relationOutput.
-                $relationOutput = null;
-            }
+            $model = $this->safelyParseAndTruncate($this->model);
+            $returnObject = $this->safelyParseAndTruncate($this->returnObject);
+            $relationOutput = $this->safelyParseAndTruncate($this->relationOutput);
+            $relationModel = $this->safelyParseAndTruncate($this->relationModel);
 
             $requestId = $this->userRequest ?  $this->userRequest->id : null;
             $failedRequestData = [
@@ -154,7 +136,7 @@ trait EngineRequestFunctions
                 'model_translation_table' => $this->modelTranslationTable,
                 'relation_class' => $this->relationClass,
                 'relation_output' => $relationOutput,
-                'relation_model' => $this->relationModel,
+                'relation_model' => $relationModel,
                 'specific_model' => $this->specificModel,
                 'relation_specific_model' => $this->relationSpecificModel,
                 'relation_bulk' => $this->relationBulk,
@@ -278,6 +260,43 @@ trait EngineRequestFunctions
             }
         } catch (Exception $e) {
             // Ignore
+        }
+    }
+
+    /**
+     * Parse input data safely and truncate it for storage.
+     *
+     * This helper converts Eloquent model instances to their attributes,
+     * transforms collections of models to arrays, then encodes the result to JSON.
+     * If JSON serialization fails, it returns a fallback string. The output is
+     * truncated to the provided limit.
+     *
+     * @param mixed $data The value to parse and truncate.
+     * @param int $limit Maximum length of the returned string.
+     * @return string Parsed and truncated representation of the input.
+     */
+    private function safelyParseAndTruncate($data, $limit = 1024)
+    {
+        try {
+            $rawData = $data;
+
+            if ($data instanceof Model) {
+                $rawData = $data->getAttributes();
+            } elseif ($data instanceof \Illuminate\Support\Collection) {
+                $rawData = $data->map(function ($item) {
+                    return $item instanceof Model ? $item->getAttributes() : $item;
+                })->toArray();
+            }
+
+            $jsonString = json_encode($rawData, JSON_PARTIAL_OUTPUT_ON_ERROR, 2);
+
+            if ($jsonString === false) {
+                $jsonString = "Unserializable data...";
+            }
+
+            return Str::limit($jsonString, $limit);
+        } catch (Exception $e) {
+            return 'Could not parse data.';
         }
     }
 }
